@@ -1,0 +1,32 @@
+[
+{
+  "directory": "D:/Storage/Documents/GitHub/AccuiNES/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DGLFW_DLL -ID:/Storage/Documents/GitHub/AccuiNES/src -std=gnu++17 -o CMakeFiles\\Accui4004.dir\\src\\CPU\\cpu.cpp.obj -c D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\CPU\\cpu.cpp",
+  "file": "D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\CPU\\cpu.cpp",
+  "output": "CMakeFiles\\Accui4004.dir\\src\\CPU\\cpu.cpp.obj"
+},
+{
+  "directory": "D:/Storage/Documents/GitHub/AccuiNES/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DGLFW_DLL -ID:/Storage/Documents/GitHub/AccuiNES/src -std=gnu++17 -o CMakeFiles\\Accui4004.dir\\src\\CPU\\opcode.cpp.obj -c D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\CPU\\opcode.cpp",
+  "file": "D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\CPU\\opcode.cpp",
+  "output": "CMakeFiles\\Accui4004.dir\\src\\CPU\\opcode.cpp.obj"
+},
+{
+  "directory": "D:/Storage/Documents/GitHub/AccuiNES/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DGLFW_DLL -ID:/Storage/Documents/GitHub/AccuiNES/src -std=gnu++17 -o CMakeFiles\\Accui4004.dir\\src\\Mapper\\base.cpp.obj -c D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\Mapper\\base.cpp",
+  "file": "D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\Mapper\\base.cpp",
+  "output": "CMakeFiles\\Accui4004.dir\\src\\Mapper\\base.cpp.obj"
+},
+{
+  "directory": "D:/Storage/Documents/GitHub/AccuiNES/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DGLFW_DLL -ID:/Storage/Documents/GitHub/AccuiNES/src -std=gnu++17 -o CMakeFiles\\Accui4004.dir\\src\\Mapper\\mappers\\nrom.cpp.obj -c D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\Mapper\\mappers\\nrom.cpp",
+  "file": "D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\Mapper\\mappers\\nrom.cpp",
+  "output": "CMakeFiles\\Accui4004.dir\\src\\Mapper\\mappers\\nrom.cpp.obj"
+},
+{
+  "directory": "D:/Storage/Documents/GitHub/AccuiNES/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DGLFW_DLL -ID:/Storage/Documents/GitHub/AccuiNES/src -std=gnu++17 -o CMakeFiles\\Accui4004.dir\\src\\main.cpp.obj -c D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\main.cpp",
+  "file": "D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\main.cpp",
+  "output": "CMakeFiles\\Accui4004.dir\\src\\main.cpp.obj"
+}
+]
