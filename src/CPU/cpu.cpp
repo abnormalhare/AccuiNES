@@ -178,6 +178,8 @@ uint8_t CPU::getPC(nes_u16::Step step) {
         case nes_u16::HI:
             return (this->PC.get() & 0xF0) >> 8;
     }
+
+    return 0;
 }
 
 void CPU::setPC() {

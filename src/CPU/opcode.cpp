@@ -698,4 +698,84 @@ namespace CPU::Opcode {
             cpu->A = cpu->ADD;
         }
     }
+
+    void INC_D(CPU *cpu) {
+        if (addr_zero_rmw(cpu)) {
+            cpu->AI = 1;
+            cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+
+    void INC_DX(CPU *cpu) {
+        if (addr_zero_index_rmw(cpu, index_value::X)) {
+            cpu->AI = 1;
+            cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+
+    void INC_A(CPU *cpu) {
+        if (addr_absolute_rmw(cpu)) {
+            cpu->AI = 1;
+            cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+
+    void INC_AX(CPU *cpu) {
+        if (addr_absolute_index_rmw(cpu, index_value::X)) {
+            cpu->AI = 1;
+            cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+
+    void INX(CPU *cpu) {
+        if (addr_implied(cpu)) {
+            cpu->AI = 1;
+            cpu->BI = cpu->X;
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+
+    void INY(CPU *cpu) {
+        if (addr_implied(cpu)) {
+            cpu->AI = 1;
+            cpu->BI = cpu->Y;
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+
+//...
+
+    void NOP(CPU *cpu) {
+        addr_implied(cpu);
+    }
+
+    void NOP_I(CPU *cpu) {
+        addr_immediate(cpu);
+    }
+
+    void NOP_D(CPU *cpu) {
+        addr_zero_read(cpu);
+    }
+
+    void NOP_DX(CPU *cpu) {
+        addr_zero_index_read(cpu, index_value::X);
+    }
+
+    void NOP_A(CPU *cpu) {
+        addr_absolute_read(cpu);
+    }
+
+    void NOP_AX(CPU *cpu) {
+        addr_absolute_index_read(cpu, index_value::X);
+    }
 }
