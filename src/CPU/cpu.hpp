@@ -8,13 +8,15 @@ namespace CPU {
     };
     enum callALU_flags {
         NONE = 0,
-        C = 1 << 0,
-        Z = 1 << 1,
-        V = 1 << 2,
-        N = 1 << 3,
+        C = 1 << 0, // carry out enable
+        Z = 1 << 1, // zero enable
+        V = 1 << 2, // overflow enable
+        N = 1 << 3, // negative enable
         ALL = C | Z | V | N,
-        R = 1 << 4,
+        R = 1 << 4, // rotate carry (carry in) enable
+        B = 1 << 5, // borrow (negate carry) enable
         S_ALL = C | Z | V | N | R,
+        B_ALL = C | Z | V | N | B,
     };
 
 struct Status {
@@ -170,6 +172,7 @@ public:
     uint8_t getPC(nes_u16::Step step);
     void setPC();
     void incPC(nes_u16::Step step);
+    void incPC();
     
 private:
     void tick();

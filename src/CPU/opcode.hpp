@@ -108,7 +108,6 @@ namespace CPU::Opcode {
     void INX(CPU *);
     void INY(CPU *);
     
-    void ISC_I(CPU *);
     void ISC_D(CPU *);
     void ISC_DX(CPU *);
     void ISC_A(CPU *);

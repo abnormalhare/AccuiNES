@@ -74,10 +74,7 @@ void CPU::readS() {
 }
 
 void CPU::writeS() {
-    this->AI = this->S;
-    this->BI = 0;
-    this->callALU(SUM, NONE);
-    this->AB.set(this->ADD, nes_u16::LO);
+    this->AB.set(this->S, nes_u16::LO);
     this->AB.set(1, nes_u16::HI);
     this->write();
 }
@@ -112,10 +109,14 @@ void CPU::ALUtoABL() {
 
 void CPU::callALU(callALU_outtype type, callALU_flags flags) {
     uint16_t val = 0;
+    uint8_t carry =
+        (flags & R) ?  this->P.c :
+        (flags & B) ? ~this->P.c :
+        0;
 
     switch (type) {
         case callALU_outtype::SUM:
-            val = (uint16_t)this->AI + (uint16_t)this->BI + ((flags & R) ? this->P.c : 0);
+            val = (uint16_t)this->AI + (uint16_t)this->BI + carry;
             if (flags & C) this->P.c = (val > 0xFF);
             if (flags & Z) this->P.z = (val == 0);
             if (flags & V) this->P.v = (val ^ this->AI) & (val ^ this->BI) & 0x80;
@@ -188,6 +189,10 @@ void CPU::setPC() {
 
 void CPU::incPC(nes_u16::Step step) {
     this->PC.set(this->getPC(step) + 1, step);
+}
+
+void CPU::incPC() {
+    this->PC++;
 }
 
 void CPU::tick() {
