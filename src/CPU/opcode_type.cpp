@@ -351,14 +351,14 @@ namespace CPU::Opcode {
                     cpu->BI = cpu->getPC(nes_u16::LO);
                     cpu->callALU(SUM, NONE);
                     cpu->PCS.set(cpu->ADD, nes_u16::LO);
+                    if (cpu->P.c == 0) cpu->step = 0;
                 } else {
                     cpu->step = 0;
                 }
                 break;
             case 3:
                 cpu->read();
-                if (!branch) cpu->step = 0;
-                if (cpu->P.c == 0) cpu->step = 0;
+                if (!branch || cpu->P.c == 0) cpu->step = 0;
                 
                 cpu->incPC(nes_u16::HI);
                 cpu->step = 0;

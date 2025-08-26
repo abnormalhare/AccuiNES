@@ -13,7 +13,7 @@ namespace Mapper {
         return mappers[currentMapper]->read(addr, bus);
     }
 
-    void write(uint16_t addr, uint8_t value, bool) {
+    void write(uint16_t addr, uint8_t value) {
         mappers[currentMapper]->write(addr, value);
     }
 }

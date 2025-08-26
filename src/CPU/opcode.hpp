@@ -75,7 +75,6 @@ namespace CPU::Opcode {
     void CPY_D(CPU *);
     void CPY_A(CPU *);
     
-    void DCP_I(CPU *);
     void DCP_D(CPU *);
     void DCP_DX(CPU *);
     void DCP_A(CPU *);
@@ -282,7 +281,7 @@ namespace CPU::Opcode {
 
     void XAA_I(CPU *);
 
-    typedef void (*opfunc)(class CPU *);
+    typedef void (*opfunc)(CPU *);
 
     extern opfunc decode_rom[256];
 }

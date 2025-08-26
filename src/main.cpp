@@ -3,7 +3,7 @@
 #include <memory>
 #include <ostream>
 
-#include "GLFW/glfw3.h"
+// #include "GLFW/glfw3.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {

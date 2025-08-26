@@ -13,6 +13,12 @@
 },
 {
   "directory": "D:/Storage/Documents/GitHub/AccuiNES/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DGLFW_DLL -ID:/Storage/Documents/GitHub/AccuiNES/src -std=gnu++17 -o CMakeFiles\\Accui4004.dir\\src\\CPU\\opcode_type.cpp.obj -c D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\CPU\\opcode_type.cpp",
+  "file": "D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\CPU\\opcode_type.cpp",
+  "output": "CMakeFiles\\Accui4004.dir\\src\\CPU\\opcode_type.cpp.obj"
+},
+{
+  "directory": "D:/Storage/Documents/GitHub/AccuiNES/build",
   "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DGLFW_DLL -ID:/Storage/Documents/GitHub/AccuiNES/src -std=gnu++17 -o CMakeFiles\\Accui4004.dir\\src\\Mapper\\base.cpp.obj -c D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\Mapper\\base.cpp",
   "file": "D:\\Storage\\Documents\\GitHub\\AccuiNES\\src\\Mapper\\base.cpp",
   "output": "CMakeFiles\\Accui4004.dir\\src\\Mapper\\base.cpp.obj"

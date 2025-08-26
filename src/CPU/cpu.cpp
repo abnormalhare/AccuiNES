@@ -15,6 +15,7 @@ CPU::CPU() {
 
     this->A = this->X = this->Y = 0;
     this->S = 0xFD;
+    this->PC = 0xFFFC;
     this->P.c = this->P.z = this->P.d = this->P.b = this->P.v = this->P.n = 0;
 
     this->step = 0;
