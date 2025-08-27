@@ -31,7 +31,7 @@ struct Header {
     uint8_t nametbl_mirror : 2;
     uint8_t battery : 1;
     uint8_t trainer : 1;
-    uint16_t mapperNum : 12;
+    uint16_t mapper_num : 12;
     uint8_t console_type : 2;
     uint8_t header_type : 2;
 

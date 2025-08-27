@@ -35,31 +35,6 @@ struct Status {
     };
 };
 
-struct PreDecode {
-    uint8_t reg;
-    bool is_two_cycle;
-    bool is_one_byte;
-
-    uint8_t operator=(const uint8_t &other) noexcept {
-        this->reg = other;
-        return this->reg;
-    }
-
-    void decode() {
-        this->is_one_byte = (
-            ((this->reg & 0b10001101) == 0b1000) ||
-            ((this->reg & 0b10010101) == 0)
-        );
-
-        // this sucks, but it is what it is
-        uint8_t lo = this->reg & 0x0F;
-        uint8_t hi = (this->reg & 0xF0) >> 4;
-        this->is_two_cycle = 
-            (lo == 0x2) || (lo == 0x8) || (lo == 0xA) ||
-            ((hi & 1) == 0 && (lo == 0x9 || lo == 0xB || ((hi & 0x8) != 0 && lo == 0x0)));
-    }
-};
-
 class nes_u16 {
 private:
     union {
@@ -154,6 +129,7 @@ public:
 
     void getInstr();
     void getData();
+    void readData();
     void setDOR(uint8_t value);
     uint8_t getDL();
     void DORtoDL();

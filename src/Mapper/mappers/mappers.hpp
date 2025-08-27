@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <fstream>
 
 namespace Mapper {
     class Mapper {
@@ -9,10 +10,6 @@ namespace Mapper {
             uint8_t *CHR_RAM;
 
         public:
-            Mapper() {
-                this->PRG_ROM = new uint8_t[0x4000];
-            }
-
             virtual uint8_t read(uint16_t addr, bool &bus) = 0;
             virtual void write(uint16_t, uint8_t value) = 0;
     };
@@ -29,7 +26,7 @@ namespace Mapper {
             Type type;
         
         public:
-            NROM();
+            NROM(std::ifstream& rom);
             
             uint8_t read(uint16_t addr, bool &bus) override;
             void write(uint16_t addr, uint8_t value) override;

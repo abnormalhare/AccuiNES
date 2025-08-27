@@ -1,4 +1,4 @@
-#include "_mappers.hpp"
+#include "mappers.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -6,21 +6,24 @@
 #include "header.hpp"
 
 namespace Mapper {
-    NROM::NROM() {
-        this->CHR_ROM = new uint8_t[0x2000];
-        
+    NROM::NROM(std::ifstream& rom) {
         switch (header.prg_rom) {
             case 1:
                 this->type = NROM::NROM128;
                 this->PRG_ROM = new uint8_t[0x4000];
+                rom.read((char *)this->PRG_ROM, 0x4000);
                 break;
             case 2:
                 this->type = NROM::NROM256;
                 this->PRG_ROM = new uint8_t[0x8000];
+                rom.read((char *)this->PRG_ROM, 0x8000);
                 break;
             default:
-                std::cout << "ERROR: Mapper of type NROM has illegal PRG ROM size." << std::endl;
+                std::cout << "ERROR: Mapper of type NROM has illegal PRG ROM size: " << header.prg_rom << std::endl;
         }
+        
+        this->CHR_ROM = new uint8_t[0x2000];
+        rom.read((char *)this->CHR_ROM, 0x2000);
 
         if (header.header_type != 2) {
             switch (header.nes1.prg_ram) {
@@ -28,8 +31,9 @@ namespace Mapper {
                 case 1:
                     this->type = FB_4K;
                     this->PRG_RAM = new uint8_t[0x1000];
+                    break;
                 default:
-                    std::cout << "ERROR: Mapper of type NROM has illegal PRG RAM size." << std::endl;
+                    std::cout << "ERROR: Mapper of type NROM has illegal PRG RAM size: " << header.nes2.prg_ram_sft << std::endl;
             }
         } else {
             switch (header.nes2.prg_ram_sft) {
@@ -37,11 +41,13 @@ namespace Mapper {
                 case 5:
                     this->type = FB_2K;
                     this->PRG_RAM = new uint8_t[0x500];
+                    break;
                 case 6:
                     this->type = FB_4K;
                     this->PRG_RAM = new uint8_t[0x1000];
+                    break;
                 default:
-                    std::cout << "ERROR: Mapper of type NROM has illegal PRG RAM size." << std::endl;
+                    std::cout << "ERROR: Mapper of type NROM has illegal PRG RAM size: " << header.nes1.prg_ram << std::endl;
             }
         }
     }
@@ -54,7 +60,7 @@ namespace Mapper {
             case 0x4020 ... 0x5FFF:
                 return 0; // should happen
             case 0x6000 ... 0x7FFF:
-                std::cout << "ERROR: Unimplemented Mapper type." << std::endl;
+                std::cout << "ERROR: Unimplemented Mapper type: Family Basic NROM" << std::endl;
                 return 0;
             case 0x8000 ... 0xFFFF:
                 bus = false;
@@ -64,7 +70,7 @@ namespace Mapper {
                     case NROM::NROM256:
                         return this->PRG_ROM[addr % 0x8000];
                     default:
-                        std::cout << "ERROR: Unimplemented Mapper type." << std::endl;
+                        std::cout << "ERROR: Unimplemented Mapper type: Family Basic NROM" << std::endl;
                         bus = true;
                         return 0;
                 }

@@ -91,6 +91,11 @@ void CPU::getData() {
     this->PC++;
 }
 
+void CPU::readData() {
+    this->AB = this->PC;
+    this->DL = this->readAB();
+}
+
 void CPU::setDOR(uint8_t value) {
     this->DOR = value;
 }
