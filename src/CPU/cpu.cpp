@@ -3,7 +3,8 @@
 #include "./opcode.hpp"
 #include "Mapper/mapper.hpp"
 #include "header.hpp"
-#include <cstdint>
+
+#include "main.hpp"
 
 Header header;
 
@@ -27,6 +28,20 @@ void CPU::simulate() {
     while (this->running) {
         this->tick();
     }
+}
+
+void CPU::debugPrint() {
+    SDL_Surface *text_surf = TTF_RenderText_Solid(font, "test", (SDL_Color){0,0,0});
+    SDL_Texture *text = SDL_CreateTextureFromSurface(renderer, text_surf);
+    SDL_Rect dest = {
+        .x = 320 - int(text_surf->w / 2.0f),
+        .y = 240,
+        .w = text_surf->w,
+        .h = text_surf->h,
+    };
+    SDL_RenderCopy(renderer, text, nullptr, &dest);
+    SDL_DestroyTexture(text);
+    SDL_FreeSurface(text_surf);
 }
 
 uint8_t CPU::readAB() {
@@ -203,6 +218,7 @@ void CPU::incPC() {
 void CPU::tick() {
     switch (this->step) {
         case 0:
+            this->debugPrint();
             this->getInstr();
             break;
 

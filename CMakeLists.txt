@@ -19,16 +19,18 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 
 # Find GLFW (must be installed or provided via package manager)
-find_package(glfw3 REQUIRED)
-find_package(OpenGL REQUIRED)
+find_package(SDL2 REQUIRED)
 
 # Create the executable in the project root (./)
 add_executable(AccuiNES ${SOURCES})
 
 # Link GLFW
-target_link_libraries(AccuiNES PRIVATE glfw OpenGL::GL)
+target_link_libraries(AccuiNES PRIVATE
+    ${SDL2_LIBRARIES}
+    SDL2_ttf
+)
 
-target_include_directories(AccuiNES PRIVATE src include ${GLFW_INCLUDE_DIRS})
+target_include_directories(AccuiNES PRIVATE src include)
 
 set_target_properties(AccuiNES PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}

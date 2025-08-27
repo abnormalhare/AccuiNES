@@ -2,56 +2,102 @@
 #include "header.hpp"
 #include "Mapper/mapper.hpp"
 
-#include <cstddef>
-#include <cstdio>
 #include <cstring>
 #include <fstream>
-#include <ios>
 #include <iostream>
 #include <memory>
 #include <ostream>
 
-#include "GLFW/glfw3.h"
+#include "main.hpp"
 
-GLFWwindow *window;
+SDL_Window *window = nullptr;
+SDL_Renderer *renderer = nullptr;
+TTF_Font *font = nullptr;
+
 char *filename;
 
-void error_callback(int error, const char *desc) {
-    std::cerr << "ERROR #" << error << ": " << desc;
-}
-
-static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-    }
-}
-
-bool initialize_glfw() {
-    if (!glfwInit()) {
-        std::cout << "ERROR: GLFW failed to initialize" << std::endl;
+bool initialize_sdl() {
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+        std::cout << "ERROR: SDL did not initialize: " << SDL_GetError() << std::endl;
         return true;
     }
-    glfwSetErrorCallback(error_callback);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    if (TTF_Init() < 0) {
+        std::cout << "ERROR: SDL TTF did not initialize: " << SDL_GetError() << std::endl;
+        return true;
+    }
 
-    window = glfwCreateWindow(640, 480, "AccuiNES", NULL, NULL);
+    window = SDL_CreateWindow("AccuiNES", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN);
     if (!window) {
-        std::cout << "ERROR: GLFW window failed to initialize" << std::endl;
+        std::cout << "ERROR: SDL Window did not initialize: " << SDL_GetError() << std::endl;
         return true;
     }
 
-    glfwMakeContextCurrent(window);
-    glfwSetKeyCallback(window, key_callback);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (!renderer) {
+        std::cout << "ERROR: SDL Renderer did not initialize: " << SDL_GetError() << std::endl;
+        return true;
+    }
 
-    int width, height; // maybe should be global
-    glfwGetFramebufferSize(window, &width, &height);
-    glViewport(0, 0, width, height);
-    glfwSwapInterval(1);
+    font = TTF_OpenFont("fonts/CALIBRI.TTF", 32);
+    if (!font) {
+        std::cout << "ERROR: Calibri font did not initialize: " << SDL_GetError() << std::endl;
+        return true;
+    }
 
     return false;
+}
+
+bool process_sdl(std::unique_ptr<CPU::CPU>& cpu) {
+    static const unsigned char *keys = SDL_GetKeyboardState(nullptr);
+    SDL_Event e;
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderClear(renderer);
+
+    while (SDL_PollEvent(&e) != 0) {
+        switch (e.type) {
+            case SDL_QUIT:
+                return false;
+            case SDL_KEYDOWN:
+                switch (e.key.keysym.sym) {
+                    case SDLK_z:        cpu->input_p1 |= 0x01; break;
+                    case SDLK_x:        cpu->input_p1 |= 0x02; break;
+                    case SDLK_RSHIFT:   cpu->input_p1 |= 0x04; break;
+                    case SDLK_RETURN:   cpu->input_p1 |= 0x08; break;
+                    case SDLK_UP:       cpu->input_p1 |= 0x10; break;
+                    case SDLK_DOWN:     cpu->input_p1 |= 0x20; break;
+                    case SDLK_LEFT:     cpu->input_p1 |= 0x40; break;
+                    case SDLK_RIGHT:    cpu->input_p1 |= 0x80; break;
+                }
+                break;
+            case SDL_KEYUP:
+                switch (e.key.keysym.sym) {
+                    case SDLK_z:        cpu->input_p1 &= ~0x01; break;
+                    case SDLK_x:        cpu->input_p1 &= ~0x02; break;
+                    case SDLK_RSHIFT:   cpu->input_p1 &= ~0x04; break;
+                    case SDLK_RETURN:   cpu->input_p1 &= ~0x08; break;
+                    case SDLK_UP:       cpu->input_p1 &= ~0x10; break;
+                    case SDLK_DOWN:     cpu->input_p1 &= ~0x20; break;
+                    case SDLK_LEFT:     cpu->input_p1 &= ~0x40; break;
+                    case SDLK_RIGHT:    cpu->input_p1 &= ~0x80; break;
+                }
+                break;
+        }
+    }
+
+    return true;
+}
+
+void deinit_sdl() {
+    TTF_CloseFont(font);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    renderer = nullptr;
+    window = nullptr;
+    
+    TTF_Quit();
+    SDL_Quit();
 }
 
 bool initialize_rom() {
@@ -89,9 +135,9 @@ bool initialize_rom() {
 void run() {
     std::unique_ptr<CPU::CPU> cpu = std::make_unique<CPU::CPU>();
 
-    while (!glfwWindowShouldClose(window)) {
+    while (cpu->running && process_sdl(cpu)) {
         cpu->simulate();
-        glfwSwapBuffers(window);
+        SDL_RenderPresent(renderer);
     }
 }
 
@@ -102,10 +148,11 @@ int main(int argc, char *argv[]) {
     }
     filename = argv[1];
 
-    if (initialize_glfw()) {
+    std::cout << "GLFW initialized" << std::endl;
+    
+    if (initialize_sdl()) {
         return 1;
     }
-    std::cout << "GLFW initialized" << std::endl;
 
     if (initialize_rom()) {
         return 2;
@@ -114,6 +161,6 @@ int main(int argc, char *argv[]) {
 
     run();
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    deinit_sdl();
+    return 0;
 }

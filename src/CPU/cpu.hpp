@@ -93,8 +93,6 @@ protected:
 
     uint8_t RAM[0x800];
 
-    bool running;
-
     uint8_t readAB();
 
 public:
@@ -117,10 +115,18 @@ public:
     bool NMI;
     bool IRQ;
     bool BRK;
+
+    bool running;
+
+    // I/O
+    uint8_t input_p1;
+    uint8_t input_p2;
     
     CPU();
 
     void simulate();
+
+    void debugPrint();
 
     void read();
     void write();
