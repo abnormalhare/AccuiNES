@@ -13,6 +13,8 @@ namespace CPU::Opcode {
     void ADC_NX(CPU *);
     void ADC_NY(CPU *);
 
+    void ADC_I2(CPU *);
+
     void AHX_AY(CPU *);
     void AHX_NY(CPU *);
     
@@ -190,7 +192,6 @@ namespace CPU::Opcode {
     void ROR_A(CPU *);
     void ROR_AX(CPU *);
     
-    void RLA_I(CPU *);
     void RLA_D(CPU *);
     void RLA_DX(CPU *);
     void RLA_A(CPU *);
@@ -199,7 +200,6 @@ namespace CPU::Opcode {
     void RLA_NX(CPU *);
     void RLA_NY(CPU *);
     
-    void RRA_I(CPU *);
     void RRA_D(CPU *);
     void RRA_DX(CPU *);
     void RRA_A(CPU *);
@@ -232,7 +232,6 @@ namespace CPU::Opcode {
     void SHX_AY(CPU *);
     void SHY_AX(CPU *);
     
-    void SLO_I(CPU *);
     void SLO_D(CPU *);
     void SLO_DX(CPU *);
     void SLO_A(CPU *);
@@ -241,7 +240,6 @@ namespace CPU::Opcode {
     void SLO_NX(CPU *);
     void SLO_NY(CPU *);
     
-    void SRE_I(CPU *);
     void SRE_D(CPU *);
     void SRE_DX(CPU *);
     void SRE_A(CPU *);
@@ -252,7 +250,6 @@ namespace CPU::Opcode {
     
     void STP(CPU *);
     
-    void STA_I(CPU *);
     void STA_D(CPU *);
     void STA_DX(CPU *);
     void STA_A(CPU *);

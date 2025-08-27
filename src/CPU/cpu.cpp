@@ -148,7 +148,7 @@ void CPU::callALU(callALU_outtype type, callALU_flags flags) {
             if (flags & R) this->ADD += this->P.c * 0b10000000;
             if (flags & C) this->P.c = ((this->AI & 1) == 1);
             if (flags & Z) this->P.z = (this->ADD == 0);
-            if (flags & V) this->P.n = 0;
+            if (flags & N) this->P.n = ((this->ADD & 0x80) == 0x80);
             break;
     }
 }

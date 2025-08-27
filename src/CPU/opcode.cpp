@@ -4,11 +4,12 @@
 #include "CPU/opcode_type.hpp"
 #include "cpu.hpp"
 #include <cstdlib>
+#include <locale>
 
 namespace CPU::Opcode {
     opfunc decode_rom[256] = {
 
-// #include "_decode_rom.hpp"
+#include "_decode_rom.hpp"
 
     };
 
@@ -107,7 +108,6 @@ namespace CPU::Opcode {
             cpu->AI = cpu->A;
             cpu->BI = cpu->getDL();
             cpu->callALU(AND, ALL);
-
             cpu->A = cpu->ADD;
         }
     }
@@ -116,7 +116,6 @@ namespace CPU::Opcode {
             cpu->AI = cpu->A;
             cpu->BI = cpu->getDL();
             cpu->callALU(AND, ALL);
-            
             cpu->A = cpu->ADD;
         }
     }
@@ -125,7 +124,6 @@ namespace CPU::Opcode {
             cpu->AI = cpu->A;
             cpu->BI = cpu->getDL();
             cpu->callALU(AND, ALL);
-            
             cpu->A = cpu->ADD;
         }
     }
@@ -134,7 +132,6 @@ namespace CPU::Opcode {
             cpu->AI = cpu->A;
             cpu->BI = cpu->getDL();
             cpu->callALU(AND, ALL);
-            
             cpu->A = cpu->ADD;
         }
     }
@@ -143,7 +140,6 @@ namespace CPU::Opcode {
             cpu->AI = cpu->A;
             cpu->BI = cpu->getDL();
             cpu->callALU(AND, ALL);
-            
             cpu->A = cpu->ADD;
         }
     }
@@ -152,7 +148,6 @@ namespace CPU::Opcode {
             cpu->AI = cpu->A;
             cpu->BI = cpu->getDL();
             cpu->callALU(AND, ALL);
-            
             cpu->A = cpu->ADD;
         }
     }
@@ -161,7 +156,6 @@ namespace CPU::Opcode {
             cpu->AI = cpu->A;
             cpu->BI = cpu->getDL();
             cpu->callALU(AND, ALL);
-            
             cpu->A = cpu->ADD;
         }
     }
@@ -170,7 +164,6 @@ namespace CPU::Opcode {
             cpu->AI = cpu->A;
             cpu->BI = cpu->getDL();
             cpu->callALU(AND, ALL);
-            
             cpu->A = cpu->ADD;
         }
     }
@@ -1161,40 +1154,685 @@ namespace CPU::Opcode {
     void ROL(CPU *cpu) {
         if (addr_implied(cpu)) {
             cpu->AI = cpu->BI = cpu->A;
-            cpu->callALU(SUM, callALU_flags(C | Z | N | R));
+            cpu->callALU(SUM, S_ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void ROL_D(CPU *cpu) {
+        if (addr_zero_rmw(cpu)) {
+            cpu->AI = cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, S_ALL);
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+    void ROL_DX(CPU *cpu) {
+        if (addr_zero_index_rmw(cpu, X)) {
+            cpu->AI = cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, S_ALL);
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+    void ROL_A(CPU *cpu) {
+        if (addr_absolute_rmw(cpu)) {
+            cpu->AI = cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, S_ALL);
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+    void ROL_AX(CPU *cpu) {
+        if (addr_absolute_index_rmw(cpu, X)) {
+            cpu->AI = cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, S_ALL);
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+
+    void ROR(CPU *cpu) {
+        if (addr_implied(cpu)) {
+            cpu->AI = cpu->A;
+            cpu->BI = 0;
+            cpu->callALU(SR, S_ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void ROR_D(CPU *cpu) {
+        if (addr_zero_rmw(cpu)) {
+            cpu->AI = cpu->A;
+            cpu->BI = 0;
+            cpu->callALU(SR, S_ALL);
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+    void ROR_DX(CPU *cpu) {
+        if (addr_zero_index_rmw(cpu, X)) {
+            cpu->AI = cpu->A;
+            cpu->BI = 0;
+            cpu->callALU(SR, S_ALL);
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+    void ROR_A(CPU *cpu) {
+        if (addr_absolute_rmw(cpu)) {
+            cpu->AI = cpu->A;
+            cpu->BI = 0;
+            cpu->callALU(SR, S_ALL);
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+    void ROR_AX(CPU *cpu) {
+        if (addr_absolute_index_rmw(cpu, X)) {
+            cpu->AI = cpu->A;
+            cpu->BI = 0;
+            cpu->callALU(SR, S_ALL);
+            cpu->setDOR(cpu->ADD);
+        }
+    }
+
+    void RLA_D(CPU *cpu) {
+        if (addr_zero_rmw(cpu)) {
+            cpu->AI = cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, S_ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(AND, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void RLA_DX(CPU *cpu) {
+        if (addr_zero_index_rmw(cpu, X)) {
+            cpu->AI = cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, S_ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(AND, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void RLA_A(CPU *cpu) {
+        if (addr_absolute_rmw(cpu)) {
+            cpu->AI = cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, S_ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(AND, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void RLA_AX(CPU *cpu) {
+        if (addr_absolute_index_rmw(cpu, X)) {
+            cpu->AI = cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, S_ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(AND, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void RLA_AY(CPU *cpu) {
+        if (addr_absolute_index_rmw(cpu, Y)) {
+            cpu->AI = cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, S_ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(AND, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void RLA_NX(CPU *cpu) {
+        if (addr_indexed_indirect_read(cpu)) {
+            cpu->AI = cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, S_ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(AND, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void RLA_NY(CPU *cpu) {
+        if (addr_indirect_indexed_read(cpu)) {
+            cpu->AI = cpu->BI = cpu->getDL();
+            cpu->callALU(SUM, S_ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(AND, ALL);
             cpu->A = cpu->ADD;
         }
     }
 
-    void ROL_D(CPU *cpu) {
+    void RRA_D(CPU *cpu) {
         if (addr_zero_rmw(cpu)) {
-            cpu->AI = cpu->BI = cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N | R));
+            cpu->AI = cpu->A;
+            cpu->BI = 0;
+            cpu->callALU(SR, S_ALL);
             cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(SUM, S_ALL);
+            cpu->A = cpu->ADD;
         }
     }
-
-    void ROL_DX(CPU *cpu) {
+    void RRA_DX(CPU *cpu) {
         if (addr_zero_index_rmw(cpu, X)) {
-            cpu->AI = cpu->BI = cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N | R));
+            cpu->AI = cpu->A;
+            cpu->BI = 0;
+            cpu->callALU(SR, S_ALL);
             cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(SUM, S_ALL);
+            cpu->A = cpu->ADD;
         }
     }
-
-    void ROL_A(CPU *cpu) {
+    void RRA_A(CPU *cpu) {
         if (addr_absolute_rmw(cpu)) {
-            cpu->AI = cpu->BI = cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N | R));
+            cpu->AI = cpu->A;
+            cpu->BI = 0;
+            cpu->callALU(SR, S_ALL);
             cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(SUM, S_ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void RRA_AX(CPU *cpu) {
+        if (addr_absolute_index_rmw(cpu, X)) {
+            cpu->AI = cpu->A;
+            cpu->BI = 0;
+            cpu->callALU(SR, S_ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(SUM, S_ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void RRA_AY(CPU *cpu) {
+        if (addr_absolute_index_rmw(cpu, Y)) {
+            cpu->AI = cpu->A;
+            cpu->BI = 0;
+            cpu->callALU(SR, S_ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(SUM, S_ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void RRA_NX(CPU *cpu) {
+        if (addr_indexed_indirect_rmw(cpu)) {
+            cpu->AI = cpu->A;
+            cpu->BI = 0;
+            cpu->callALU(SR, S_ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(SUM, S_ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void RRA_NY(CPU *cpu) {
+        if (addr_indirect_indexed_rmw(cpu)) {
+            cpu->AI = cpu->A;
+            cpu->BI = 0;
+            cpu->callALU(SR, S_ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(SUM, S_ALL);
+            cpu->A = cpu->ADD;
         }
     }
 
-    void ROL_AX(CPU *cpu) {
-        if (addr_absolute_index_rmw(cpu, X)) {
-            cpu->AI = cpu->BI = cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N | R));
+    void RTI(CPU *cpu) {
+        switch (cpu->step) {
+            default: cpu->step = 0; break;
+
+            case 1:
+                cpu->readData();
+                break;
+            case 2:
+                cpu->readData();
+                cpu->BI = 1;
+                cpu->AI = cpu->S;
+                cpu->callALU(SUM, NONE);
+                break;
+            case 3:
+                cpu->readS();
+                cpu->P.reg = cpu->getDL();
+                cpu->BI = 1;
+                cpu->AI = cpu->S;
+                cpu->callALU(SUM, NONE);
+                break;
+            case 4:
+                cpu->readS();
+                cpu->PCS.set(cpu->getDL(), nes_u16::LO);
+                cpu->BI = 1;
+                cpu->AI = cpu->S;
+                cpu->callALU(SUM, NONE);
+                break;
+            case 5:
+                cpu->readS();
+                cpu->PCS.set(cpu->getDL(), nes_u16::HI);
+                cpu->setPC();
+                cpu->step = 0;
+                break;
+        }
+    }
+
+    void RTS(CPU *cpu) {
+        switch (cpu->step) {
+            default: cpu->step = 0; break;
+
+            case 1:
+                cpu->readData();
+                break;
+            case 2:
+                cpu->readData();
+                cpu->BI = 1;
+                cpu->AI = cpu->S;
+                cpu->callALU(SUM, NONE);
+                break;
+            case 3:
+                cpu->readS();
+                cpu->PCS.set(cpu->getDL(), nes_u16::LO);
+                cpu->BI = 1;
+                cpu->AI = cpu->S;
+                cpu->callALU(SUM, NONE);
+                break;
+            case 4:
+                cpu->readS();
+                cpu->PCS.set(cpu->getDL(), nes_u16::HI);
+                cpu->setPC();
+                break;
+            case 5:
+                cpu->incPC();
+                cpu->step = 0;
+                break;
+        }
+    }
+
+    void SAX_D(CPU *cpu) {
+        if (addr_zero_write(cpu)) { cpu->setDOR(cpu->A & cpu->X); }
+    }
+    void SAX_DY(CPU *cpu) {
+        if (addr_zero_index_write(cpu, Y)) { cpu->setDOR(cpu->A & cpu->X); }
+    }
+    void SAX_A(CPU *cpu) {
+        if (addr_absolute_write(cpu)) { cpu->setDOR(cpu->A & cpu->X); }
+    }
+    void SAX_NX(CPU *cpu) {
+        if (addr_absolute_write(cpu)) { cpu->setDOR(cpu->A & cpu->X); }
+    }
+
+    void SEC(CPU *cpu) {
+        if (addr_implied(cpu)) { cpu->P.c = 1; }
+    }
+    void SED(CPU *cpu) {
+        if (addr_implied(cpu)) { cpu->P.d = 1; }
+    }
+    void SEI(CPU *cpu) {
+        if (addr_implied(cpu)) { cpu->P.i = 1; }
+    }
+
+    void SBC_I(CPU *cpu) {
+        if (addr_immediate(cpu)) {
+            cpu->AI = cpu->A;
+            cpu->BI = -cpu->getDL();
+            cpu->callALU(SUM, B_ALL);
+        }
+    }
+    void SBC_D(CPU *cpu) {
+        if (addr_zero_read(cpu)) {
+            cpu->AI = cpu->A;
+            cpu->BI = -cpu->getDL();
+            cpu->callALU(SUM, B_ALL);
+        }
+    }
+    void SBC_DX(CPU *cpu) {
+        if (addr_zero_index_read(cpu, X)) {
+            cpu->AI = cpu->A;
+            cpu->BI = -cpu->getDL();
+            cpu->callALU(SUM, B_ALL);
+        }
+    }
+    void SBC_A(CPU *cpu) {
+        if (addr_absolute_read(cpu)) {
+            cpu->AI = cpu->A;
+            cpu->BI = -cpu->getDL();
+            cpu->callALU(SUM, B_ALL);
+        }
+    }
+    void SBC_AX(CPU *cpu) {
+        if (addr_absolute_index_read(cpu, X)) {
+            cpu->AI = cpu->A;
+            cpu->BI = -cpu->getDL();
+            cpu->callALU(SUM, B_ALL);
+        }
+    }
+    void SBC_AY(CPU *cpu) {
+        if (addr_absolute_index_read(cpu, Y)) {
+            cpu->AI = cpu->A;
+            cpu->BI = -cpu->getDL();
+            cpu->callALU(SUM, B_ALL);
+        }
+    }
+    void SBC_NX(CPU *cpu) {
+        if (addr_indexed_indirect_read(cpu)) {
+            cpu->AI = cpu->A;
+            cpu->BI = -cpu->getDL();
+            cpu->callALU(SUM, B_ALL);
+        }
+    }
+    void SBC_NY(CPU *cpu) {
+        if (addr_indirect_indexed_read(cpu)) {
+            cpu->AI = cpu->A;
+            cpu->BI = -cpu->getDL();
+            cpu->callALU(SUM, B_ALL);
+        }
+    }
+
+    void SHX_AY(CPU *cpu) {
+        if (addr_absolute_index_write(cpu, Y)) {
+            cpu->setDOR(cpu->X & cpu->ADD); // ok i know this isnt legal but what else am i supposed to do?
+        }
+    }
+    void SHY_AX(CPU *cpu) {
+        if (addr_absolute_index_write(cpu, X)) {
+            cpu->setDOR(cpu->Y & cpu->ADD);
+        }
+    }
+
+    void SLO_D(CPU *cpu) {
+        if (addr_zero_rmw(cpu)) {
+            cpu->AI = cpu->BI = cpu->A;
+            cpu->callALU(SUM, callALU_flags(C | Z | N));
             cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(OR, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void SLO_DX(CPU *cpu) {
+        if (addr_zero_index_rmw(cpu, X)) {
+            cpu->AI = cpu->BI = cpu->A;
+            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(OR, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void SLO_A(CPU *cpu) {
+        if (addr_absolute_rmw(cpu)) {
+            cpu->AI = cpu->BI = cpu->A;
+            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(OR, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void SLO_AX(CPU *cpu) {
+        if (addr_absolute_index_rmw(cpu, X)) {
+            cpu->AI = cpu->BI = cpu->A;
+            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(OR, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void SLO_AY(CPU *cpu) {
+        if (addr_absolute_index_rmw(cpu, Y)) {
+            cpu->AI = cpu->BI = cpu->A;
+            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(OR, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void SLO_NX(CPU *cpu) {
+        if (addr_indexed_indirect_rmw(cpu)) {
+            cpu->AI = cpu->BI = cpu->A;
+            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(OR, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+    void SLO_NY(CPU *cpu) {
+        if (addr_indirect_indexed_rmw(cpu)) {
+            cpu->AI = cpu->BI = cpu->A;
+            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(OR, ALL);
+            cpu->A = cpu->ADD;
+        }
+    }
+
+    void SRE_D(CPU *cpu) {
+        if (addr_zero_rmw(cpu)) {
+            cpu->AI = cpu->getDL();
+            cpu->BI = 0;
+            cpu->callALU(SR, ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(EOR, callALU_flags(ALL));
+            cpu->A = cpu->ADD;
+        }
+    }
+    void SRE_DX(CPU *cpu) {
+        if (addr_zero_index_rmw(cpu, X)) {
+            cpu->AI = cpu->getDL();
+            cpu->BI = 0;
+            cpu->callALU(SR, ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(EOR, callALU_flags(ALL));
+            cpu->A = cpu->ADD;
+        }
+    }
+    void SRE_A(CPU *cpu) {
+        if (addr_absolute_rmw(cpu)) {
+            cpu->AI = cpu->getDL();
+            cpu->BI = 0;
+            cpu->callALU(SR, ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(EOR, callALU_flags(ALL));
+            cpu->A = cpu->ADD;
+        }
+    }
+    void SRE_AX(CPU *cpu) {
+        if (addr_absolute_index_rmw(cpu, X)) {
+            cpu->AI = cpu->getDL();
+            cpu->BI = 0;
+            cpu->callALU(SR, ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(EOR, callALU_flags(ALL));
+            cpu->A = cpu->ADD;
+        }
+    }
+    void SRE_AY(CPU *cpu) {
+        if (addr_absolute_index_rmw(cpu, Y)) {
+            cpu->AI = cpu->getDL();
+            cpu->BI = 0;
+            cpu->callALU(SR, ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(EOR, callALU_flags(ALL));
+            cpu->A = cpu->ADD;
+        }
+    }
+    void SRE_NX(CPU *cpu) {
+        if (addr_indexed_indirect_rmw(cpu)) {
+            cpu->AI = cpu->getDL();
+            cpu->BI = 0;
+            cpu->callALU(SR, ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(EOR, callALU_flags(ALL));
+            cpu->A = cpu->ADD;
+        }
+    }
+    void SRE_NY(CPU *cpu) {
+        if (addr_indirect_indexed_rmw(cpu)) {
+            cpu->AI = cpu->getDL();
+            cpu->BI = 0;
+            cpu->callALU(SR, ALL);
+            cpu->setDOR(cpu->ADD);
+
+            cpu->BI = cpu->ADD;
+            cpu->AI = cpu->A;
+            cpu->callALU(EOR, callALU_flags(ALL));
+            cpu->A = cpu->ADD;
+        }
+    }
+
+    void STP(CPU *cpu) {
+        if (addr_implied(cpu)) {
+            cpu->step = 0; // guessing
+        }
+    }
+
+    void STA_D(CPU *cpu) {
+        if (addr_zero_write(cpu)) { cpu->setDOR(cpu->A); }
+    }
+    void STA_DX(CPU *cpu) {
+        if (addr_zero_index_write(cpu, X)) { cpu->setDOR(cpu->A); }
+    }
+    void STA_A(CPU *cpu) {
+        if (addr_absolute_write(cpu)) { cpu->setDOR(cpu->A); }
+    }
+    void STA_AX(CPU *cpu) {
+        if (addr_absolute_index_write(cpu, X)) { cpu->setDOR(cpu->A); }
+    }
+    void STA_AY(CPU *cpu) {
+        if (addr_absolute_index_write(cpu, Y)) { cpu->setDOR(cpu->A); }
+    }
+    void STA_NX(CPU *cpu) {
+        if (addr_indexed_indirect_write(cpu)) { cpu->setDOR(cpu->A); }
+    }
+    void STA_NY(CPU *cpu) {
+        if (addr_indirect_indexed_write(cpu)) { cpu->setDOR(cpu->A); }
+    }
+
+    void STX_D(CPU *cpu) {
+        if (addr_zero_write(cpu)) { cpu->setDOR(cpu->X); }
+    }
+    void STX_DY(CPU *cpu) {
+        if (addr_zero_index_write(cpu, Y)) { cpu->setDOR(cpu->X); }
+    }
+    void STX_A(CPU *cpu) {
+        if (addr_absolute_write(cpu)) { cpu->setDOR(cpu->X); }
+    }
+
+    void STY_D(CPU *cpu) {
+        if (addr_zero_write(cpu)) { cpu->setDOR(cpu->Y); }
+    }
+    void STY_DX(CPU *cpu) {
+        if (addr_zero_index_write(cpu, X)) { cpu->setDOR(cpu->Y); }
+    }
+    void STY_A(CPU *cpu) {
+        if (addr_absolute_write(cpu)) { cpu->setDOR(cpu->Y); }
+    }
+
+    void TAS_AY(CPU *cpu) {
+        if (cpu->step == 4) {
+            cpu->write();
+        }
+        if (addr_absolute_index_read(cpu, Y)) {
+            cpu->setDOR(cpu->A & cpu->X & cpu->ADD);
+            cpu->S = cpu->A & cpu->X;
+        }
+    }
+
+    void TAX(CPU *cpu) {
+        if (addr_implied(cpu)) {
+            cpu->X = cpu->A;
+        }
+    }
+    void TAY(CPU *cpu) {
+        if (addr_implied(cpu)) {
+            cpu->Y = cpu->A;
+        }
+    }
+    void TSX(CPU *cpu) {
+        if (addr_implied(cpu)) {
+            cpu->X = cpu->S;
+        }
+    }
+    void TXA(CPU *cpu) {
+        if (addr_implied(cpu)) {
+            cpu->A = cpu->X;
+        }
+    }
+    void TXS(CPU *cpu) {
+        if (addr_implied(cpu)) {
+            cpu->S = cpu->X;
+        }
+    }
+    void TYA(CPU *cpu) {
+        if (addr_implied(cpu)) {
+            cpu->A = cpu->Y;
+        }
+    }
+
+    void XAA_I(CPU *cpu) {
+        if (addr_immediate(cpu)) {
+            cpu->A = (cpu->A | 0xEE) & cpu->X & cpu->getDL();
         }
     }
 }
