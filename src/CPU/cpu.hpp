@@ -27,8 +27,8 @@ struct Status {
             uint8_t i : 1;
             uint8_t d : 1;
             uint8_t b : 1;
-            uint8_t v : 1;
             uint8_t o : 1;
+            uint8_t v : 1;
             uint8_t n : 1;
         };
         uint8_t reg;
@@ -39,7 +39,7 @@ class nes_u16 {
 private:
     union {
         uint16_t x;
-        union {
+        struct {
             uint8_t lo;
             uint8_t hi;
         };
@@ -117,14 +117,15 @@ public:
     bool BRK;
 
     bool running;
+    bool debug_step;
 
     // I/O
     uint8_t input_p1;
     uint8_t input_p2;
     
     CPU();
-
-    void simulate();
+    
+    void tick();
 
     void debugPrint();
 
@@ -134,6 +135,7 @@ public:
     void writeS();
 
     void getInstr();
+    const char *getInstrName();
     void getData();
     void readData();
     void setDOR(uint8_t value);
@@ -141,7 +143,8 @@ public:
     void DORtoDL();
     void ALUtoABL();
 
-    void callALU(callALU_outtype type, callALU_flags flags);
+    // returns carry out
+    bool callALU(callALU_outtype type, callALU_flags flags);
 
     void clearABHi() {
         this->AB.set(0, nes_u16::HI);
@@ -157,7 +160,6 @@ public:
     void incPC();
     
 private:
-    void tick();
     void reset();
 };
 

@@ -2,6 +2,8 @@
 #include "header.hpp"
 #include "Mapper/mapper.hpp"
 
+#include <SDL_error.h>
+#include <SDL_keycode.h>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -39,7 +41,7 @@ bool initialize_sdl() {
         return true;
     }
 
-    font = TTF_OpenFont("fonts/CALIBRI.TTF", 32);
+    font = TTF_OpenFont("fonts/CALIBRI.TTF", 16);
     if (!font) {
         std::cout << "ERROR: Calibri font did not initialize: " << SDL_GetError() << std::endl;
         return true;
@@ -69,6 +71,9 @@ bool process_sdl(std::unique_ptr<CPU::CPU>& cpu) {
                     case SDLK_DOWN:     cpu->input_p1 |= 0x20; break;
                     case SDLK_LEFT:     cpu->input_p1 |= 0x40; break;
                     case SDLK_RIGHT:    cpu->input_p1 |= 0x80; break;
+
+                    case SDLK_SPACE:    cpu->debug_step = true; break;
+                    case SDLK_ESCAPE:   return false;
                 }
                 break;
             case SDL_KEYUP:
@@ -136,7 +141,7 @@ void run() {
     std::unique_ptr<CPU::CPU> cpu = std::make_unique<CPU::CPU>();
 
     while (cpu->running && process_sdl(cpu)) {
-        cpu->simulate();
+        cpu->tick();
         SDL_RenderPresent(renderer);
     }
 }

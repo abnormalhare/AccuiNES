@@ -259,8 +259,8 @@ namespace CPU::Opcode {
             case 3: {
                 cpu->read();
                 cpu->AI = 0;
-                cpu->callALU(SUM, NONE);
-                if (cpu->P.c == 0)  { cpu->step = 0; return true; }
+                bool co = cpu->callALU(SUM, NONE);
+                if (co)  { cpu->step = 0; return true; }
                 break;
             } case 4:
                 cpu->read();
@@ -349,18 +349,22 @@ namespace CPU::Opcode {
                 if (branch) {
                     cpu->AI = cpu->ADD;
                     cpu->BI = cpu->getPC(nes_u16::LO);
-                    cpu->callALU(SUM, NONE);
+                    bool co = cpu->callALU(SUM, NONE);
                     cpu->PCS.set(cpu->ADD, nes_u16::LO);
-                    if (cpu->P.c == 0) cpu->step = 0;
+                    if (co) {
+                        cpu->setPC();
+                        cpu->step = 0;
+                    }
                 } else {
                     cpu->step = 0;
                 }
                 break;
             case 3:
                 cpu->read();
-                if (!branch || cpu->P.c == 0) cpu->step = 0;
+                if (!branch) cpu->step = 0;
                 
                 cpu->incPC(nes_u16::HI);
+                cpu->setPC();
                 cpu->step = 0;
                 break;
         }
@@ -509,13 +513,13 @@ namespace CPU::Opcode {
                 cpu->setAB(CPU::HI, false);
                 cpu->BI = cpu->getDL();
                 break;
-            case 4:
+            case 4: {
                 cpu->read();
                 cpu->AI = 0;
-                cpu->callALU(SUM, NONE);
-                if (cpu->P.c == 0) { cpu->step = 0; return true; }
+                bool co = cpu->callALU(SUM, NONE);
+                if (co) { cpu->step = 0; return true; }
                 break;
-            case 5:
+            } case 5:
                 cpu->read();
                 cpu->step = 0;
                 return true;

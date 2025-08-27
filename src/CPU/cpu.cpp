@@ -5,6 +5,10 @@
 #include "header.hpp"
 
 #include "main.hpp"
+#include <SDL_pixels.h>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 
 Header header;
 
@@ -16,32 +20,64 @@ CPU::CPU() {
 
     this->A = this->X = this->Y = 0;
     this->S = 0xFD;
-    this->PC = 0xFFFC;
+    this->PC = 0xC000;
     this->P.c = this->P.z = this->P.d = this->P.b = this->P.v = this->P.n = 0;
 
     this->step = 0;
 
     this->running = true;
+    this->debug_step = false;
 }
 
-void CPU::simulate() {
-    while (this->running) {
-        this->tick();
-    }
-}
-
-void CPU::debugPrint() {
-    SDL_Surface *text_surf = TTF_RenderText_Solid(font, "test", (SDL_Color){0,0,0});
-    SDL_Texture *text = SDL_CreateTextureFromSurface(renderer, text_surf);
+void renderSDLText(char *text, SDL_Color& color, int x, int y) {
+    SDL_Surface *text_surf = TTF_RenderText_Solid(font, text, color);
+    SDL_Texture *text_tex = SDL_CreateTextureFromSurface(renderer, text_surf);
     SDL_Rect dest = {
-        .x = 320 - int(text_surf->w / 2.0f),
-        .y = 240,
+        .x = x + 5,
+        .y = y + 5,
         .w = text_surf->w,
         .h = text_surf->h,
     };
-    SDL_RenderCopy(renderer, text, nullptr, &dest);
-    SDL_DestroyTexture(text);
+    SDL_RenderCopy(renderer, text_tex, nullptr, &dest);
+    SDL_DestroyTexture(text_tex);
     SDL_FreeSurface(text_surf);
+}
+
+void renderSDLTextF(SDL_Color& color, int x, int y, const char *text, ...) {
+    va_list list;
+    va_start(list, text);
+
+    char *new_text = (char *)malloc(256 * sizeof(char));
+    vsnprintf(new_text, 256, text, list);
+
+    renderSDLText(new_text, color, x, y);
+    free(new_text);
+
+    va_end(list);
+}
+
+void CPU::debugPrint() {
+    SDL_Color black = {0,0,0};
+
+    renderSDLTextF(black, 0, 0, "INST: %s", this->getInstrName());
+
+    renderSDLTextF(black,  0, 20, "PC: %04X", this->PC.get());
+    renderSDLTextF(black, 75, 20, "PCS: %04X", this->PCS.get());
+    renderSDLTextF(black,  0, 35, "IR: %02X", this->IR);
+    renderSDLTextF(black,  0, 50, "STEP: %d", this->step);
+    renderSDLTextF(black,  0, 65, "AB: %04X", this->AB.get());
+    renderSDLTextF(black,  0, 80, "DL: %02X", this->DL);
+
+    renderSDLTextF(black,  0,100, "A: %02X", this->A);
+    renderSDLTextF(black, 40,100, "X: %02X", this->X);
+    renderSDLTextF(black, 80,100, "Y: %02X", this->Y);
+    renderSDLTextF(black,120,100, "P: %d%d%d%d%d%d%d%d",
+        this->P.c, this->P.z, this->P.i, this->P.d, this->P.b, this->P.o, this->P.v, this->P.n
+    );
+
+    renderSDLTextF(black,  0,120, "AI: %02X", this->AI);
+    renderSDLTextF(black, 45,120, "BI: %02X", this->BI);
+    renderSDLTextF(black, 90,120, "ADD: %02X", this->ADD);
 }
 
 uint8_t CPU::readAB() {
@@ -100,6 +136,16 @@ void CPU::getInstr() {
     this->PC++;
 }
 
+const char *instr_names[256] = {
+
+#include "_instr_name.hpp"
+
+};
+
+const char *CPU::getInstrName() {
+    return instr_names[this->IR];
+}
+
 void CPU::getData() {
     this->AB = this->PC;
     this->DL = this->readAB();
@@ -127,7 +173,8 @@ void CPU::ALUtoABL() {
     this->AB.set(this->ADD, nes_u16::LO);
 }
 
-void CPU::callALU(callALU_outtype type, callALU_flags flags) {
+// returns carry out
+bool CPU::callALU(callALU_outtype type, callALU_flags flags) {
     uint16_t val = 0;
     uint8_t carry =
         (flags & R) ?  this->P.c :
@@ -142,7 +189,7 @@ void CPU::callALU(callALU_outtype type, callALU_flags flags) {
             if (flags & V) this->P.v = (val ^ this->AI) & (val ^ this->BI) & 0x80;
             if (flags & N) this->P.n = ((val & 0x80) == 0x80);
             this->ADD = val;
-            break;
+            return (val > 0xFF);
         case callALU_outtype::AND:
             this->ADD = this->AI & this->BI;
             if (flags & Z) this->P.z = (this->ADD == 0);
@@ -164,8 +211,10 @@ void CPU::callALU(callALU_outtype type, callALU_flags flags) {
             if (flags & C) this->P.c = ((this->AI & 1) == 1);
             if (flags & Z) this->P.z = (this->ADD == 0);
             if (flags & N) this->P.n = ((this->ADD & 0x80) == 0x80);
-            break;
+            return ((this->AI & 1) == 1);
     }
+
+    return false;
 }
 
 void CPU::setAB(CPU::Step step, bool clear_ai) {
@@ -216,9 +265,13 @@ void CPU::incPC() {
 }
 
 void CPU::tick() {
+    this->debugPrint();
+
+    if (!this->debug_step) return;
+    this->debug_step = false;
+
     switch (this->step) {
         case 0:
-            this->debugPrint();
             this->getInstr();
             break;
 

@@ -7,6 +7,8 @@
 
 namespace Mapper {
     NROM::NROM(std::ifstream& rom) {
+        std::cout << "Mapper Type: ";
+
         switch (header.prg_rom) {
             case 1:
                 this->type = NROM::NROM128;
@@ -49,6 +51,13 @@ namespace Mapper {
                 default:
                     std::cout << "ERROR: Mapper of type NROM has illegal PRG RAM size: " << header.nes1.prg_ram << std::endl;
             }
+        }
+
+        switch (this->type) {
+            case NROM128: std::cout << "NROM128" << std::endl; break;
+            case NROM256: std::cout << "NROM256" << std::endl; break;
+            case FB_2K:   std::cout << "NROM Family Basic - 2K PRG-RAM" << std::endl; break;
+            case FB_4K:   std::cout << "NROM Family Basic - 4K PRG-RAM" << std::endl; break;
         }
     }
 
