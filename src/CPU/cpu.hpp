@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <fstream>
 
 namespace CPU {
     enum callALU_outtype {
@@ -124,10 +125,10 @@ public:
     uint8_t input_p2;
     
     CPU();
+    ~CPU();
     
     void tick();
 
-    void debugPrint();
 
     void read();
     void write();
@@ -160,6 +161,13 @@ public:
     void incPC();
     
 private:
+    std::ofstream debugFile;
+    uint16_t prevPC;
+    uint16_t currPC;
+
+    uint8_t read(uint16_t idx);
+    void debugPrint();
+    void debugWrite();
     void reset();
 };
 

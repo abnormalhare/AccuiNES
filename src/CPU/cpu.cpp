@@ -9,12 +9,16 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
+#include <iomanip>
+#include <ios>
+#include <iostream>
 
 Header header;
 
 namespace CPU {
 
-CPU::CPU() {
+CPU::CPU() : debugFile("debug/debug.txt") {
 
     this->reset();
 
@@ -22,11 +26,16 @@ CPU::CPU() {
     this->S = 0xFD;
     this->PC = 0xC000;
     this->P.c = this->P.z = this->P.d = this->P.b = this->P.v = this->P.n = 0;
+    this->P.i = 1; this->P.o = 1;
 
     this->step = 0;
 
     this->running = true;
     this->debug_step = false;
+}
+
+CPU::~CPU() {
+    this->debugFile.close();
 }
 
 void renderSDLText(char *text, SDL_Color& color, int x, int y) {
@@ -72,16 +81,20 @@ void CPU::debugPrint() {
     renderSDLTextF(black, 40,100, "X: %02X", this->X);
     renderSDLTextF(black, 80,100, "Y: %02X", this->Y);
     renderSDLTextF(black,120,100, "P: %d%d%d%d%d%d%d%d",
-        this->P.c, this->P.z, this->P.i, this->P.d, this->P.b, this->P.o, this->P.v, this->P.n
+        this->P.n, this->P.v, this->P.o, this->P.b, this->P.d, this->P.i, this->P.z, this->P.c
     );
 
     renderSDLTextF(black,  0,120, "AI: %02X", this->AI);
     renderSDLTextF(black, 45,120, "BI: %02X", this->BI);
     renderSDLTextF(black, 90,120, "ADD: %02X", this->ADD);
+
+    renderSDLTextF(black,200,  0,  "STACK: %02X%02X%02X%02X%02X%02X%02X%02X",
+        this->RAM[0x1F8], this->RAM[0x1F9], this->RAM[0x1FA], this->RAM[0x1FB], this->RAM[0x1FC], this->RAM[0x1FD], this->RAM[0x1FE], this->RAM[0x1FF]
+    );
 }
 
-uint8_t CPU::readAB() {
-    switch (this->AB.get()) {
+inline uint8_t CPU::read(uint16_t index) {
+    switch (index) {
         case 0x0000 ... 0x1FFF:
             return this->RAM[this->AB % 0x800];
             break;
@@ -91,12 +104,16 @@ uint8_t CPU::readAB() {
             return this->DL;
         case 0x4020 ... 0xFFFF:
             bool bus = false;
-            uint8_t val = Mapper::read(this->AB.get(), bus);
+            uint8_t val = Mapper::read(index, bus);
             if (!bus) return val;
             else return this->DL;
     }
 
     return this->DL;
+}
+
+inline uint8_t CPU::readAB() {
+    return this->read(this->AB.get());
 }
 
 void CPU::read() {
@@ -134,6 +151,7 @@ void CPU::getInstr() {
     this->AB = this->PC;
     this->IR = this->readAB();
     this->PC++;
+    this->currPC++;
 }
 
 const char *instr_names[256] = {
@@ -150,6 +168,7 @@ void CPU::getData() {
     this->AB = this->PC;
     this->DL = this->readAB();
     this->PC++;
+    this->currPC++;
 }
 
 void CPU::readData() {
@@ -185,7 +204,7 @@ bool CPU::callALU(callALU_outtype type, callALU_flags flags) {
         case callALU_outtype::SUM:
             val = (uint16_t)this->AI + (uint16_t)this->BI + carry;
             if (flags & C) this->P.c = (val > 0xFF);
-            if (flags & Z) this->P.z = (val == 0);
+            if (flags & Z) this->P.z = ((val & 0xFF) == 0);
             if (flags & V) this->P.v = (val ^ this->AI) & (val ^ this->BI) & 0x80;
             if (flags & N) this->P.n = ((val & 0x80) == 0x80);
             this->ADD = val;
@@ -244,9 +263,9 @@ void CPU::setAB(CPU::Step step, bool clear_ai) {
 uint8_t CPU::getPC(nes_u16::Step step) {
     switch (step) {
         case nes_u16::LO:
-            return this->PC.get() & 0x0F;
+            return this->PC.get() & 0x00FF;
         case nes_u16::HI:
-            return (this->PC.get() & 0xF0) >> 8;
+            return (this->PC.get() & 0xFF00) >> 8;
     }
 
     return 0;
@@ -267,23 +286,57 @@ void CPU::incPC() {
 void CPU::tick() {
     this->debugPrint();
 
-    if (!this->debug_step) return;
+    // if (!this->debug_step) return;
     this->debug_step = false;
 
     switch (this->step) {
         case 0:
+            this->currPC = this->prevPC = this->PC.get();
             this->getInstr();
             break;
 
         default:
             Opcode::decode_rom[this->IR](this);
             if (this->step == 0) {
+                this->debugWrite();
                 this->tick();
                 return;
             }
     }
     
     this->step++;
+}
+
+void CPU::debugWrite() {
+    this->debugFile << std::hex << std::uppercase << std::setw(4) << std::setfill('0') 
+                    << static_cast<int>(this->prevPC) << "  ";
+
+    bool compare_check = false;
+    for (int i = 0; i < 3; i++) {
+        uint16_t pc = this->prevPC + i;
+
+        if (pc >= this->currPC) {
+            this->debugFile << "   ";
+        } else {
+            this->debugFile << std::hex << std::uppercase << std::setw(2) << std::setfill('0') 
+                            << static_cast<int>(this->read(pc)) << " ";
+        }
+    }
+
+    this->debugFile << std::setw(7) << std::setfill(' ') << this->getInstrName() << "  ";
+
+    this->debugFile << "A:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') 
+                    << static_cast<int>(this->A) << " ";
+    this->debugFile << "X:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') 
+                    << static_cast<int>(this->X) << " ";
+    this->debugFile << "Y:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') 
+                    << static_cast<int>(this->Y) << " ";
+    this->debugFile << "P:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') 
+                    << static_cast<int>(this->P.reg) << " ";
+    this->debugFile << "SP:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') 
+                    << static_cast<int>(this->S);
+    
+    this->debugFile << std::endl;
 }
 
 void CPU::reset() {

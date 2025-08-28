@@ -342,13 +342,10 @@ namespace CPU::Opcode {
             case 1:
                 cpu->getData();
                 cpu->BI = cpu->getDL();
-                cpu->AI = 0;
-                cpu->callALU(SUM, NONE);
             case 2:
                 cpu->read();
                 if (branch) {
-                    cpu->AI = cpu->ADD;
-                    cpu->BI = cpu->getPC(nes_u16::LO);
+                    cpu->AI = cpu->getPC(nes_u16::LO);
                     bool co = cpu->callALU(SUM, NONE);
                     cpu->PCS.set(cpu->ADD, nes_u16::LO);
                     if (co) {

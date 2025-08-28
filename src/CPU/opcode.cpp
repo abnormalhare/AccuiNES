@@ -4,7 +4,6 @@
 #include "CPU/opcode_type.hpp"
 #include "cpu.hpp"
 #include <cstdlib>
-#include <locale>
 
 namespace CPU::Opcode {
     opfunc decode_rom[256] = {
@@ -834,20 +833,22 @@ namespace CPU::Opcode {
             case 2:
                 break;
             case 3:
-                cpu->setDOR(cpu->getPC(nes_u16::LO));
-                cpu->writeS();
-
-                cpu->BI = -1;
-                cpu->AI = cpu->S;
-                cpu->callALU(SUM, NONE);
-                break;
-            case 4:
                 cpu->setDOR(cpu->getPC(nes_u16::HI));
                 cpu->writeS();
 
                 cpu->BI = -1;
                 cpu->AI = cpu->S;
                 cpu->callALU(SUM, NONE);
+                cpu->S = cpu->ADD;
+                break;
+            case 4:
+                cpu->setDOR(cpu->getPC(nes_u16::LO));
+                cpu->writeS();
+
+                cpu->BI = -1;
+                cpu->AI = cpu->S;
+                cpu->callALU(SUM, NONE);
+                cpu->S = cpu->ADD;
                 break;
             case 5:
                 cpu->getData();
@@ -908,60 +909,132 @@ namespace CPU::Opcode {
     }
 
     void LDA_I(CPU *cpu) {
-        if (addr_immediate(cpu)) cpu->A = cpu->getDL();
+        if (addr_immediate(cpu)) {
+            cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+        }
     }
     void LDA_D(CPU *cpu) {
-        if (addr_zero_read(cpu)) cpu->A = cpu->getDL();
+        if (addr_zero_read(cpu)) {
+            cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+        }
     }
     void LDA_DX(CPU *cpu) {
-        if (addr_zero_index_read(cpu, X)) cpu->A = cpu->getDL();
+        if (addr_zero_index_read(cpu, X)) {
+            cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+        }
     }
     void LDA_A(CPU *cpu) {
-        if (addr_absolute_read(cpu)) cpu->A = cpu->getDL();
+        if (addr_absolute_read(cpu)) {
+            cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+        }
     }
     void LDA_AX(CPU *cpu) {
-        if (addr_absolute_index_read(cpu, X)) cpu->A = cpu->getDL();
+        if (addr_absolute_index_read(cpu, X)) {
+            cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+        }
     }
     void LDA_AY(CPU *cpu) {
-        if (addr_absolute_index_read(cpu, Y)) cpu->A = cpu->getDL();
+        if (addr_absolute_index_read(cpu, Y)) {
+            cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+        }
     }
     void LDA_NX(CPU *cpu) {
-        if (addr_indexed_indirect_read(cpu)) cpu->A = cpu->getDL();
+        if (addr_indexed_indirect_read(cpu)) {
+            cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+        }
     }
     void LDA_NY(CPU *cpu) {
-        if (addr_indirect_indexed_read(cpu)) cpu->A = cpu->getDL();
+        if (addr_indirect_indexed_read(cpu)) {
+            cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+        }
     }
 
     void LDX_I(CPU *cpu) {
-        if (addr_immediate(cpu)) cpu->X = cpu->getDL();
+        if (addr_immediate(cpu)) {
+            cpu->X = cpu->getDL();
+            cpu->P.z = (cpu->X == 0);
+            cpu->P.n = ((cpu->X & 0x80) == 0x80);
+        }
     }
     void LDX_D(CPU *cpu) {
-        if (addr_zero_read(cpu)) cpu->X = cpu->getDL();
+        if (addr_zero_read(cpu)) {
+            cpu->X = cpu->getDL();
+            cpu->P.z = (cpu->X == 0);
+            cpu->P.n = ((cpu->X & 0x80) == 0x80);
+        }
     }
     void LDX_DY(CPU *cpu) {
-        if (addr_zero_index_read(cpu, Y)) cpu->X = cpu->getDL();
+        if (addr_zero_index_read(cpu, Y)) {
+            cpu->X = cpu->getDL();
+            cpu->P.z = (cpu->X == 0);
+            cpu->P.n = ((cpu->X & 0x80) == 0x80);
+        }
     }
     void LDX_A(CPU *cpu) {
-        if (addr_absolute_read(cpu)) cpu->X = cpu->getDL();
+        if (addr_absolute_read(cpu)) {
+            cpu->X = cpu->getDL();
+            cpu->P.z = (cpu->X == 0);
+            cpu->P.n = ((cpu->X & 0x80) == 0x80);
+        }
     }
     void LDX_AY(CPU *cpu) {
-        if (addr_absolute_index_read(cpu, Y)) cpu->X = cpu->getDL();
+        if (addr_absolute_index_read(cpu, Y)) {
+            cpu->X = cpu->getDL();
+            cpu->P.z = (cpu->X == 0);
+            cpu->P.n = ((cpu->X & 0x80) == 0x80);
+        }
     }
 
     void LDY_I(CPU *cpu) {
-        if (addr_immediate(cpu)) cpu->Y = cpu->getDL();
+        if (addr_immediate(cpu)) {
+            cpu->Y = cpu->getDL();
+            cpu->P.z = (cpu->Y == 0);
+            cpu->P.n = ((cpu->Y & 0x80) == 0x80);
+        }
     }
     void LDY_D(CPU *cpu) {
-        if (addr_zero_read(cpu)) cpu->Y = cpu->getDL();
+        if (addr_zero_read(cpu)) {
+            cpu->Y = cpu->getDL();
+            cpu->P.z = (cpu->Y == 0);
+            cpu->P.n = ((cpu->Y & 0x80) == 0x80);
+        }
     }
     void LDY_DX(CPU *cpu) {
-        if (addr_zero_index_read(cpu, X)) cpu->Y = cpu->getDL();
+        if (addr_zero_index_read(cpu, X)) {
+            cpu->Y = cpu->getDL();
+            cpu->P.z = (cpu->Y == 0);
+            cpu->P.n = ((cpu->Y & 0x80) == 0x80);
+        }
     }
     void LDY_A(CPU *cpu) {
-        if (addr_absolute_read(cpu)) cpu->Y = cpu->getDL();
+        if (addr_absolute_read(cpu)) {
+            cpu->Y = cpu->getDL();
+            cpu->P.z = (cpu->Y == 0);
+            cpu->P.n = ((cpu->Y & 0x80) == 0x80);
+        }
     }
     void LDY_AX(CPU *cpu) {
-        if (addr_absolute_index_read(cpu, X)) cpu->Y = cpu->getDL();
+        if (addr_absolute_index_read(cpu, X)) {
+            cpu->Y = cpu->getDL();
+            cpu->P.z = (cpu->Y == 0);
+            cpu->P.n = ((cpu->Y & 0x80) == 0x80);
+        }
     }
 
     void LSR(CPU *cpu) {
@@ -1092,7 +1165,13 @@ namespace CPU::Opcode {
                 cpu->setDOR(cpu->A);
                 break;
             case 2:
-                cpu->write();
+                cpu->writeS();
+
+                cpu->BI = -1;
+                cpu->AI = cpu->S;
+                cpu->callALU(SUM, NONE);
+                cpu->S = cpu->ADD;
+
                 cpu->step = 0;
                 break;
         }
@@ -1104,10 +1183,16 @@ namespace CPU::Opcode {
 
             case 1:
                 cpu->readData();
-                cpu->setDOR(cpu->P.reg);
+                cpu->setDOR(cpu->P.reg | 0x30);
                 break;
             case 2:
-                cpu->write();
+                cpu->writeS();
+
+                cpu->BI = -1;
+                cpu->AI = cpu->S;
+                cpu->callALU(SUM, NONE);
+                cpu->S = cpu->ADD;
+
                 cpu->step = 0;
                 break;
         }
@@ -1122,13 +1207,17 @@ namespace CPU::Opcode {
                 break;
             case 2:
                 cpu->readData();
+
                 cpu->BI = 1;
                 cpu->AI = cpu->S;
                 cpu->callALU(SUM, NONE);
+                cpu->S = cpu->ADD;
                 break;
             case 3:
                 cpu->readS();
-                cpu->A = cpu->getDL();
+                cpu->BI = cpu->A = cpu->getDL();
+                cpu->AI = 0;
+                cpu->callALU(SUM, callALU_flags(Z | N));
         }
     }
 
@@ -1144,6 +1233,7 @@ namespace CPU::Opcode {
                 cpu->BI = 1;
                 cpu->AI = cpu->S;
                 cpu->callALU(SUM, NONE);
+                cpu->S = cpu->ADD;
                 break;
             case 3:
                 cpu->readS();
@@ -1417,6 +1507,7 @@ namespace CPU::Opcode {
                 cpu->BI = 1;
                 cpu->AI = cpu->S;
                 cpu->callALU(SUM, NONE);
+                cpu->S = cpu->ADD;
                 break;
             case 3:
                 cpu->readS();
@@ -1424,6 +1515,7 @@ namespace CPU::Opcode {
                 cpu->BI = 1;
                 cpu->AI = cpu->S;
                 cpu->callALU(SUM, NONE);
+                cpu->S = cpu->ADD;
                 break;
             case 4:
                 cpu->readS();
@@ -1431,6 +1523,7 @@ namespace CPU::Opcode {
                 cpu->BI = 1;
                 cpu->AI = cpu->S;
                 cpu->callALU(SUM, NONE);
+                cpu->S = cpu->ADD;
                 break;
             case 5:
                 cpu->readS();
@@ -1453,6 +1546,7 @@ namespace CPU::Opcode {
                 cpu->BI = 1;
                 cpu->AI = cpu->S;
                 cpu->callALU(SUM, NONE);
+                cpu->S = cpu->ADD;
                 break;
             case 3:
                 cpu->readS();
@@ -1460,6 +1554,7 @@ namespace CPU::Opcode {
                 cpu->BI = 1;
                 cpu->AI = cpu->S;
                 cpu->callALU(SUM, NONE);
+                cpu->S = cpu->ADD;
                 break;
             case 4:
                 cpu->readS();
