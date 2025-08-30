@@ -156,7 +156,7 @@ public:
     enum Step {
         LO, HI, SETLO
     };
-    void setAB(Step step, bool clear_ai);
+    bool setAB(Step step, bool clear_ai);
     uint8_t getPC(nes_u16::Step step);
     void setPC();
     void incPC(nes_u16::Step step);

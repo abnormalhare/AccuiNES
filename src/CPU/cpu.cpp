@@ -65,6 +65,8 @@ void renderSDLTextF(SDL_Color& color, int x, int y, const char *text, ...) {
     va_end(list);
 }
 
+const int debug_ram_pos = 0x90;
+
 void CPU::debugPrint() {
     SDL_Color black = {0,0,0};
 
@@ -88,22 +90,22 @@ void CPU::debugPrint() {
     renderSDLTextF(black, 45,120, "BI: %02X", this->BI);
     renderSDLTextF(black, 90,120, "ADD: %02X", this->ADD);
 
-    renderSDLTextF(black,200,  0, "ZERO PAGE");
+    renderSDLTextF(black,200,  0, "ZERO PAGE @ %02X", debug_ram_pos);
     renderSDLTextF(black,200, 20, "%02X%02X%02X%02X%02X%02X%02X%02X", 
-        this->RAM[0x00], this->RAM[0x01], this->RAM[0x02], this->RAM[0x03], this->RAM[0x04], this->RAM[0x05], this->RAM[0x06], this->RAM[0x07]
+        this->RAM[debug_ram_pos + 0x00], this->RAM[debug_ram_pos + 0x01], this->RAM[debug_ram_pos + 0x02], this->RAM[debug_ram_pos + 0x03], this->RAM[debug_ram_pos + 0x04], this->RAM[debug_ram_pos + 0x05], this->RAM[debug_ram_pos + 0x06], this->RAM[debug_ram_pos + 0x07]
     );
     renderSDLTextF(black,200, 35, "%02X%02X%02X%02X%02X%02X%02X%02X", 
-        this->RAM[0x08], this->RAM[0x09], this->RAM[0x0A], this->RAM[0x0B], this->RAM[0x0C], this->RAM[0x0D], this->RAM[0x0E], this->RAM[0x0F]
+        this->RAM[debug_ram_pos + 0x08], this->RAM[debug_ram_pos + 0x09], this->RAM[debug_ram_pos + 0x0A], this->RAM[debug_ram_pos + 0x0B], this->RAM[debug_ram_pos + 0x0C], this->RAM[debug_ram_pos + 0x0D], this->RAM[debug_ram_pos + 0x0E], this->RAM[debug_ram_pos + 0x0F]
     );
     renderSDLTextF(black,200, 50, "%02X%02X%02X%02X%02X%02X%02X%02X", 
-        this->RAM[0x10], this->RAM[0x11], this->RAM[0x12], this->RAM[0x13], this->RAM[0x14], this->RAM[0x15], this->RAM[0x16], this->RAM[0x17]
+        this->RAM[debug_ram_pos + 0x10], this->RAM[debug_ram_pos + 0x11], this->RAM[debug_ram_pos + 0x12], this->RAM[debug_ram_pos + 0x13], this->RAM[debug_ram_pos + 0x14], this->RAM[debug_ram_pos + 0x15], this->RAM[debug_ram_pos + 0x16], this->RAM[debug_ram_pos + 0x17]
     );
     renderSDLTextF(black,200, 65, "%02X%02X%02X%02X%02X%02X%02X%02X", 
-        this->RAM[0x18], this->RAM[0x19], this->RAM[0x1A], this->RAM[0x1B], this->RAM[0x1C], this->RAM[0x1D], this->RAM[0x1E], this->RAM[0x1F]
+        this->RAM[debug_ram_pos + 0x18], this->RAM[debug_ram_pos + 0x19], this->RAM[debug_ram_pos + 0x1A], this->RAM[debug_ram_pos + 0x1B], this->RAM[debug_ram_pos + 0x1C], this->RAM[debug_ram_pos + 0x1D], this->RAM[debug_ram_pos + 0x1E], this->RAM[debug_ram_pos + 0x1F]
     );
 
     renderSDLTextF(black,200,200,  "STACK: %02X%02X%02X%02X%02X%02X%02X%02X",
-        this->RAM[0x1F8], this->RAM[0x1F9], this->RAM[0x1FA], this->RAM[0x1FB], this->RAM[0x1FC], this->RAM[0x1FD], this->RAM[0x1FE], this->RAM[0x1FF]
+        this->RAM[debug_ram_pos + 0x1F8], this->RAM[debug_ram_pos + 0x1F9], this->RAM[debug_ram_pos + 0x1FA], this->RAM[debug_ram_pos + 0x1FB], this->RAM[debug_ram_pos + 0x1FC], this->RAM[debug_ram_pos + 0x1FD], this->RAM[debug_ram_pos + 0x1FE], this->RAM[debug_ram_pos + 0x1FF]
     );
 }
 
@@ -251,14 +253,15 @@ bool CPU::callALU(callALU_outtype type, callALU_flags flags) {
     return false;
 }
 
-void CPU::setAB(CPU::Step step, bool clear_ai) {
+bool CPU::setAB(CPU::Step step, bool clear_ai) {
+    bool co = false;
     switch (step) {
         case Step::LO:
             this->BI = this->DL;
             if (clear_ai) this->AI = 0;
             break;
         case Step::HI:
-            this->callALU(SUM, NONE);
+            co = this->callALU(SUM, NONE);
             this->AB.set(this->ADD, nes_u16::LO);
             this->AB.set(this->DL,  nes_u16::HI);
             break;
@@ -267,10 +270,12 @@ void CPU::setAB(CPU::Step step, bool clear_ai) {
         case Step::SETLO:
             this->BI = this->DL;
             if (clear_ai) this->AI = 0;
-            this->callALU(SUM, NONE);
+            co = this->callALU(SUM, NONE);
             this->AB.set(this->ADD, nes_u16::LO);
             break;
     }
+
+    return co;
 }
 
 uint8_t CPU::getPC(nes_u16::Step step) {
@@ -299,7 +304,7 @@ void CPU::incPC() {
 void CPU::tick() {
     this->debugPrint();
 
-    // if (!this->debug_step && this->IR == 0xA1) return;
+    // if (!this->debug_step && this->IR == 0xB9) return;
     this->debug_step = false;
 
     switch (this->step) {
@@ -336,7 +341,7 @@ void CPU::debugWrite() {
         }
     }
 
-    // this->debugFile << std::setw(7) << std::setfill(' ') << this->getInstrName() << "  ";
+    this->debugFile << std::setw(7) << std::setfill(' ') << this->getInstrName() << "  ";
 
     this->debugFile << "A:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') 
                     << static_cast<int>(this->A) << " ";

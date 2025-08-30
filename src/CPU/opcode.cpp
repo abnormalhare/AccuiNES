@@ -830,13 +830,18 @@ namespace CPU::Opcode {
             case 2:
                 cpu->getData();
                 cpu->setAB(CPU::HI, true);
+                cpu->BI = cpu->ADD;
                 break;
             case 3:
-                cpu->getData();
+                cpu->read();
                 cpu->PCS.set(cpu->getDL(), nes_u16::LO);
+
+                cpu->AI = 0;
+                cpu->callALU(SUM, I);
+                cpu->ALUtoABL();
                 break;
             case 4:
-                cpu->getData();
+                cpu->read();
                 cpu->PCS.set(cpu->getDL(), nes_u16::HI);
 
                 cpu->setPC();

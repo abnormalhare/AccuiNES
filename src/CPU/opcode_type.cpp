@@ -1,5 +1,6 @@
 #include "opcode_type.hpp"
 #include "cpu.hpp"
+#include <iostream>
 
 namespace CPU::Opcode {
     // CALCULATION STEP: 1
@@ -241,6 +242,8 @@ namespace CPU::Opcode {
         return false;
     }
 
+    bool _index_did_overflow = false;
+
     // CALCULATION STEP: when func returns true
     bool addr_absolute_index_read(CPU *cpu, index_value value) {
         switch (cpu->step) {
@@ -253,14 +256,16 @@ namespace CPU::Opcode {
             case 2:
                 cpu->getData();
                 cpu->AI = (value == index_value::X) ? cpu->X : cpu->Y;
-                cpu->setAB(CPU::HI, false);
+                _index_did_overflow = cpu->setAB(CPU::HI, false);
                 cpu->BI = cpu->getDL();
                 break;
             case 3: {
                 cpu->read();
+                if (!_index_did_overflow)  { cpu->step = 0; return true; }
+
                 cpu->AI = 0;
-                bool co = cpu->callALU(SUM, NONE);
-                if (co)  { cpu->step = 0; return true; }
+                cpu->callALU(SUM, I);
+                cpu->AB.set(cpu->ADD, nes_u16::HI);
                 break;
             } case 4:
                 cpu->read();
@@ -282,13 +287,13 @@ namespace CPU::Opcode {
             case 2:
                 cpu->getData();
                 cpu->AI = (value == index_value::X) ? cpu->X : cpu->Y;
-                cpu->setAB(CPU::HI, false);
+                _index_did_overflow = cpu->setAB(CPU::HI, false);
                 cpu->BI = cpu->getDL();
                 break;
             case 3:
                 cpu->read();
                 cpu->AI = 0;
-                cpu->callALU(SUM, NONE);
+                cpu->callALU(SUM, _index_did_overflow ? I : NONE);
                 break;
             case 4:
                 cpu->read();
@@ -317,13 +322,13 @@ namespace CPU::Opcode {
             case 2:
                 cpu->getData();
                 cpu->AI = (value == index_value::X) ? cpu->X : cpu->Y;
-                cpu->setAB(CPU::HI, false);
+                _index_did_overflow = cpu->setAB(CPU::HI, false);
                 cpu->BI = cpu->getDL();
                 break;
             case 3:
                 cpu->read();
                 cpu->AI = 0;
-                cpu->callALU(SUM, NONE);
+                cpu->callALU(SUM, _index_did_overflow ? I : NONE);
                 return true;
             case 4:
                 cpu->write();
@@ -510,14 +515,16 @@ namespace CPU::Opcode {
             case 3:
                 cpu->read();
                 cpu->AI = cpu->Y;
-                cpu->setAB(CPU::HI, false);
+                _index_did_overflow = cpu->setAB(CPU::HI, false);
                 cpu->BI = cpu->getDL();
                 break;
             case 4: {
                 cpu->read();
+                if (!_index_did_overflow) { cpu->step = 0; return true; }
+                
                 cpu->AI = 0;
-                bool co = cpu->callALU(SUM, NONE);
-                if (co) { cpu->step = 0; return true; }
+                cpu->callALU(SUM, I);
+                cpu->AB.set(cpu->ADD, nes_u16::HI);
                 break;
             } case 5:
                 cpu->read();
@@ -549,13 +556,13 @@ namespace CPU::Opcode {
             case 3:
                 cpu->read();
                 cpu->AI = cpu->Y;
-                cpu->setAB(CPU::HI, false);
+                _index_did_overflow = cpu->setAB(CPU::HI, false);
                 cpu->BI = cpu->getDL();
                 break;
             case 4:
                 cpu->read();
                 cpu->AI = 0;
-                cpu->callALU(SUM, NONE);
+                cpu->callALU(SUM, _index_did_overflow ? I : NONE);
                 break;
             case 5:
                 cpu->read();
@@ -593,13 +600,13 @@ namespace CPU::Opcode {
             case 3:
                 cpu->read();
                 cpu->AI = cpu->Y;
-                cpu->setAB(CPU::HI, false);
+                _index_did_overflow = cpu->setAB(CPU::HI, false);
                 cpu->BI = cpu->getDL();
                 break;
             case 4:
                 cpu->read();
                 cpu->AI = 0;
-                cpu->callALU(SUM, NONE);
+                cpu->callALU(SUM, _index_did_overflow ? I : NONE);
                 return true;
             case 5:
                 cpu->write();
