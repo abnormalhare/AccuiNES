@@ -15,9 +15,8 @@ namespace CPU {
         N = 1 << 3, // negative enable
         ALL = C | Z | V | N,
         R = 1 << 4, // rotate carry (carry in) enable
-        B = 1 << 5, // borrow (negate carry) enable
         S_ALL = C | Z | V | N | R,
-        B_ALL = C | Z | V | N | B,
+        I = 1 << 6, // carry in enable
     };
 
 struct Status {
@@ -63,6 +62,9 @@ public:
     uint16_t operator++(int other) noexcept {
         return this->x++;
     }
+    uint16_t operator+(int other) noexcept {
+        return this->x + other;
+    }
 
     enum Step {
         LO, HI
@@ -87,7 +89,6 @@ protected:
     nes_u16 PC;
     
     uint8_t DL;
-    nes_u16 AB;
     uint8_t IR;
 
     uint8_t DOR;
@@ -107,6 +108,7 @@ public:
     Status P;
     
     nes_u16 PCS;
+    nes_u16 AB;
     
     uint8_t AI;
     uint8_t BI;

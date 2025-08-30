@@ -24,7 +24,7 @@ CPU::CPU() : debugFile("debug/debug.txt") {
 
     this->A = this->X = this->Y = 0;
     this->S = 0xFD;
-    this->PC = 0xC000;
+    this->PC = this->PCS = 0xC000;
     this->P.c = this->P.z = this->P.d = this->P.b = this->P.v = this->P.n = 0;
     this->P.i = 1; this->P.o = 1;
 
@@ -88,7 +88,21 @@ void CPU::debugPrint() {
     renderSDLTextF(black, 45,120, "BI: %02X", this->BI);
     renderSDLTextF(black, 90,120, "ADD: %02X", this->ADD);
 
-    renderSDLTextF(black,200,  0,  "STACK: %02X%02X%02X%02X%02X%02X%02X%02X",
+    renderSDLTextF(black,200,  0, "ZERO PAGE");
+    renderSDLTextF(black,200, 20, "%02X%02X%02X%02X%02X%02X%02X%02X", 
+        this->RAM[0x00], this->RAM[0x01], this->RAM[0x02], this->RAM[0x03], this->RAM[0x04], this->RAM[0x05], this->RAM[0x06], this->RAM[0x07]
+    );
+    renderSDLTextF(black,200, 35, "%02X%02X%02X%02X%02X%02X%02X%02X", 
+        this->RAM[0x08], this->RAM[0x09], this->RAM[0x0A], this->RAM[0x0B], this->RAM[0x0C], this->RAM[0x0D], this->RAM[0x0E], this->RAM[0x0F]
+    );
+    renderSDLTextF(black,200, 50, "%02X%02X%02X%02X%02X%02X%02X%02X", 
+        this->RAM[0x10], this->RAM[0x11], this->RAM[0x12], this->RAM[0x13], this->RAM[0x14], this->RAM[0x15], this->RAM[0x16], this->RAM[0x17]
+    );
+    renderSDLTextF(black,200, 65, "%02X%02X%02X%02X%02X%02X%02X%02X", 
+        this->RAM[0x18], this->RAM[0x19], this->RAM[0x1A], this->RAM[0x1B], this->RAM[0x1C], this->RAM[0x1D], this->RAM[0x1E], this->RAM[0x1F]
+    );
+
+    renderSDLTextF(black,200,200,  "STACK: %02X%02X%02X%02X%02X%02X%02X%02X",
         this->RAM[0x1F8], this->RAM[0x1F9], this->RAM[0x1FA], this->RAM[0x1FB], this->RAM[0x1FC], this->RAM[0x1FD], this->RAM[0x1FE], this->RAM[0x1FF]
     );
 }
@@ -150,7 +164,8 @@ void CPU::writeS() {
 void CPU::getInstr() {
     this->AB = this->PC;
     this->IR = this->readAB();
-    this->PC++;
+    this->PCS = this->PC;
+    this->PC = this->PCS + 1;
     this->currPC++;
 }
 
@@ -197,15 +212,15 @@ bool CPU::callALU(callALU_outtype type, callALU_flags flags) {
     uint16_t val = 0;
     uint8_t carry =
         (flags & R) ?  this->P.c :
-        (flags & B) ? ~this->P.c :
+        (flags & I) ? 1          :
         0;
 
     switch (type) {
         case callALU_outtype::SUM:
-            val = (uint16_t)this->AI + (uint16_t)this->BI + carry;
+            val = (uint16_t)this->AI + (uint16_t)this->BI + (uint16_t)carry;
             if (flags & C) this->P.c = (val > 0xFF);
             if (flags & Z) this->P.z = ((val & 0xFF) == 0);
-            if (flags & V) this->P.v = (val ^ this->AI) & (val ^ this->BI) & 0x80;
+            if (flags & V) this->P.v = (((val ^ this->AI) & (val ^ this->BI) & 0x80) == 0x80);
             if (flags & N) this->P.n = ((val & 0x80) == 0x80);
             this->ADD = val;
             return (val > 0xFF);
@@ -243,7 +258,6 @@ void CPU::setAB(CPU::Step step, bool clear_ai) {
             if (clear_ai) this->AI = 0;
             break;
         case Step::HI:
-            this->P.c = 0;
             this->callALU(SUM, NONE);
             this->AB.set(this->ADD, nes_u16::LO);
             this->AB.set(this->DL,  nes_u16::HI);
@@ -253,7 +267,6 @@ void CPU::setAB(CPU::Step step, bool clear_ai) {
         case Step::SETLO:
             this->BI = this->DL;
             if (clear_ai) this->AI = 0;
-            this->P.c = 0;
             this->callALU(SUM, NONE);
             this->AB.set(this->ADD, nes_u16::LO);
             break;
@@ -286,7 +299,7 @@ void CPU::incPC() {
 void CPU::tick() {
     this->debugPrint();
 
-    // if (!this->debug_step) return;
+    // if (!this->debug_step && this->IR == 0xA1) return;
     this->debug_step = false;
 
     switch (this->step) {
@@ -323,7 +336,7 @@ void CPU::debugWrite() {
         }
     }
 
-    this->debugFile << std::setw(7) << std::setfill(' ') << this->getInstrName() << "  ";
+    // this->debugFile << std::setw(7) << std::setfill(' ') << this->getInstrName() << "  ";
 
     this->debugFile << "A:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') 
                     << static_cast<int>(this->A) << " ";
