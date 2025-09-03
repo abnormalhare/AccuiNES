@@ -65,7 +65,7 @@ void renderSDLTextF(SDL_Color& color, int x, int y, const char *text, ...) {
     va_end(list);
 }
 
-const int debug_ram_pos = 0x90;
+const int debug_ram_pos = 0x40;
 
 void CPU::debugPrint() {
     SDL_Color black = {0,0,0};
@@ -243,7 +243,7 @@ bool CPU::callALU(callALU_outtype type, callALU_flags flags) {
             break;
         case callALU_outtype::SR:
             this->ADD = this->AI >> 1;
-            if (flags & R) this->ADD += this->P.c * 0b10000000;
+            if (flags & R) this->ADD += (this->P.c == 1) * 0b10000000;
             if (flags & C) this->P.c = ((this->AI & 1) == 1);
             if (flags & Z) this->P.z = (this->ADD == 0);
             if (flags & N) this->P.n = ((this->ADD & 0x80) == 0x80);
@@ -304,7 +304,6 @@ void CPU::incPC() {
 void CPU::tick() {
     this->debugPrint();
 
-    // if (!this->debug_step && this->IR == 0xB9) return;
     this->debug_step = false;
 
     switch (this->step) {

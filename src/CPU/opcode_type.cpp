@@ -294,6 +294,7 @@ namespace CPU::Opcode {
                 cpu->read();
                 cpu->AI = 0;
                 cpu->callALU(SUM, _index_did_overflow ? I : NONE);
+                cpu->AB.set(cpu->ADD, nes_u16::HI);
                 break;
             case 4:
                 cpu->read();
@@ -329,6 +330,7 @@ namespace CPU::Opcode {
                 cpu->read();
                 cpu->AI = 0;
                 cpu->callALU(SUM, _index_did_overflow ? I : NONE);
+                cpu->AB.set(cpu->ADD, nes_u16::HI);
                 return true;
             case 4:
                 cpu->write();
@@ -354,7 +356,7 @@ namespace CPU::Opcode {
                     bool co = cpu->callALU(SUM, NONE);
                     cpu->PCS.set(cpu->ADD, nes_u16::LO);
                     cpu->PCS.set(cpu->getPC(nes_u16::HI), nes_u16::HI);
-                    if (!co) {
+                    if (!(co ^ ((cpu->BI & 0x80) == 0x80))) {
                         cpu->setPC();
                         cpu->step = 0;
                     }
@@ -366,7 +368,11 @@ namespace CPU::Opcode {
                 cpu->read();
                 if (!branch) cpu->step = 0;
                 
-                cpu->PCS.set(((cpu->PCS.get() & 0xFF00) >> 8) + 1, nes_u16::HI);
+                if (!(cpu->BI & 0x80)) {
+                    cpu->PCS.set(((cpu->PCS.get() & 0xFF00) >> 8) + 1, nes_u16::HI);
+                } else {
+                    cpu->PCS.set(((cpu->PCS.get() & 0xFF00) >> 8) - 1, nes_u16::HI);
+                }
                 cpu->setPC();
                 cpu->step = 0;
                 break;
@@ -563,6 +569,7 @@ namespace CPU::Opcode {
                 cpu->read();
                 cpu->AI = 0;
                 cpu->callALU(SUM, _index_did_overflow ? I : NONE);
+                cpu->AB.set(cpu->ADD, nes_u16::HI);
                 break;
             case 5:
                 cpu->read();
@@ -607,6 +614,8 @@ namespace CPU::Opcode {
                 cpu->read();
                 cpu->AI = 0;
                 cpu->callALU(SUM, _index_did_overflow ? I : NONE);
+                cpu->AB.set(cpu->ADD, nes_u16::HI);
+                
                 return true;
             case 5:
                 cpu->write();

@@ -184,28 +184,28 @@ namespace CPU::Opcode {
     }
     void ASL_D(CPU *cpu) {
         if (addr_zero_rmw(cpu)) {
-            cpu->AI = cpu->BI = cpu->A;
+            cpu->AI = cpu->BI = cpu->getDL();
             cpu->callALU(SUM, callALU_flags(C | Z | N));
             cpu->setDOR(cpu->ADD);
         }
     }
     void ASL_DX(CPU *cpu) {
         if (addr_zero_index_rmw(cpu, X)) {
-            cpu->AI = cpu->BI = cpu->A;
+            cpu->AI = cpu->BI = cpu->getDL();
             cpu->callALU(SUM, callALU_flags(C | Z | N));
             cpu->setDOR(cpu->ADD);
         }
     }
     void ASL_A(CPU *cpu) {
         if (addr_absolute_rmw(cpu)) {
-            cpu->AI = cpu->BI = cpu->A;
+            cpu->AI = cpu->BI = cpu->getDL();
             cpu->callALU(SUM, callALU_flags(C | Z | N));
             cpu->setDOR(cpu->ADD);
         }
     }
     void ASL_AX(CPU *cpu) {
         if (addr_absolute_index_rmw(cpu, X)) {
-            cpu->AI = cpu->BI = cpu->A;
+            cpu->AI = cpu->BI = cpu->getDL();
             cpu->callALU(SUM, callALU_flags(C | Z | N));
             cpu->setDOR(cpu->ADD);
         }
@@ -355,7 +355,7 @@ namespace CPU::Opcode {
         if (addr_zero_read(cpu)) {
             cpu->AI = cpu->A;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
@@ -363,7 +363,7 @@ namespace CPU::Opcode {
         if (addr_zero_index_read(cpu, X)) {
             cpu->AI = cpu->A;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
@@ -371,7 +371,7 @@ namespace CPU::Opcode {
         if (addr_absolute_read(cpu)) {
             cpu->AI = cpu->A;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
@@ -379,7 +379,7 @@ namespace CPU::Opcode {
         if (addr_absolute_index_read(cpu, X)) {
             cpu->AI = cpu->A;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
@@ -387,7 +387,7 @@ namespace CPU::Opcode {
         if (addr_absolute_index_read(cpu, Y)) {
             cpu->AI = cpu->A;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
@@ -395,7 +395,7 @@ namespace CPU::Opcode {
         if (addr_indexed_indirect_read(cpu)) {
             cpu->AI = cpu->A;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
@@ -403,7 +403,7 @@ namespace CPU::Opcode {
         if (addr_indirect_indexed_read(cpu)) {
             cpu->AI = cpu->A;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
@@ -412,7 +412,7 @@ namespace CPU::Opcode {
         if (addr_immediate(cpu)) {
             cpu->AI = cpu->X;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
@@ -420,7 +420,7 @@ namespace CPU::Opcode {
         if (addr_zero_read(cpu)) {
             cpu->AI = cpu->X;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >=uint8_t(-cpu->BI));
         }
     }
@@ -428,7 +428,7 @@ namespace CPU::Opcode {
         if (addr_absolute_read(cpu)) {
             cpu->AI = cpu->X;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
@@ -437,7 +437,7 @@ namespace CPU::Opcode {
         if (addr_immediate(cpu)) {
             cpu->AI = cpu->Y;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
@@ -445,7 +445,7 @@ namespace CPU::Opcode {
         if (addr_zero_read(cpu)) {
             cpu->AI = cpu->Y;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
@@ -453,7 +453,7 @@ namespace CPU::Opcode {
         if (addr_absolute_read(cpu)) {
             cpu->AI = cpu->Y;
             cpu->BI = -cpu->getDL();
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
             cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
@@ -467,7 +467,8 @@ namespace CPU::Opcode {
             
             cpu->BI = -cpu->ADD;
             cpu->AI = cpu->A;
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
     void DCP_DX(CPU *cpu) {
@@ -479,7 +480,8 @@ namespace CPU::Opcode {
             
             cpu->BI = -cpu->ADD;
             cpu->AI = cpu->A;
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
     void DCP_A(CPU *cpu) {
@@ -491,7 +493,8 @@ namespace CPU::Opcode {
             
             cpu->BI = -cpu->ADD;
             cpu->AI = cpu->A;
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
     void DCP_AX(CPU *cpu) {
@@ -503,7 +506,8 @@ namespace CPU::Opcode {
             
             cpu->BI = -cpu->ADD;
             cpu->AI = cpu->A;
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
     void DCP_AY(CPU *cpu) {
@@ -515,7 +519,8 @@ namespace CPU::Opcode {
             
             cpu->BI = -cpu->ADD;
             cpu->AI = cpu->A;
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
     void DCP_NX(CPU *cpu) {
@@ -527,7 +532,8 @@ namespace CPU::Opcode {
             
             cpu->BI = -cpu->ADD;
             cpu->AI = cpu->A;
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
     void DCP_NY(CPU *cpu) {
@@ -539,7 +545,8 @@ namespace CPU::Opcode {
             
             cpu->BI = -cpu->ADD;
             cpu->AI = cpu->A;
-            cpu->callALU(SUM, callALU_flags(C | Z | N));
+            cpu->callALU(SUM, callALU_flags(Z | N));
+            cpu->P.c = (cpu->AI >= uint8_t(-cpu->BI));
         }
     }
 
@@ -896,42 +903,63 @@ namespace CPU::Opcode {
     void LAX_I(CPU *cpu) {
         if (addr_immediate(cpu)) {
             cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+
             cpu->X = cpu->A ^ uint8_t(rand() & rand());
         }
     }
     void LAX_D(CPU *cpu) {
         if (addr_zero_read(cpu)) {
             cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+
             cpu->X = cpu->A;
         }
     }
     void LAX_DY(CPU *cpu) {
         if (addr_zero_index_read(cpu, Y)) {
             cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+
             cpu->X = cpu->A;
         }
     }
     void LAX_A(CPU *cpu) {
         if (addr_absolute_read(cpu)) {
             cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+
             cpu->X = cpu->A;
         }
     }
     void LAX_AY(CPU *cpu) {
         if (addr_absolute_index_read(cpu, Y)) {
             cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+            
             cpu->X = cpu->A;
         }
     }
     void LAX_NX(CPU *cpu) {
         if (addr_indexed_indirect_read(cpu)) {
             cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+
             cpu->X = cpu->A;
         }
     }
     void LAX_NY(CPU *cpu) {
         if (addr_indirect_indexed_read(cpu)) {
             cpu->A = cpu->getDL();
+            cpu->P.z = (cpu->A == 0);
+            cpu->P.n = ((cpu->A & 0x80) == 0x80);
+            
             cpu->X = cpu->A;
         }
     }
@@ -1351,7 +1379,7 @@ namespace CPU::Opcode {
     void RLA_D(CPU *cpu) {
         if (addr_zero_rmw(cpu)) {
             cpu->AI = cpu->BI = cpu->getDL();
-            cpu->callALU(SUM, S_ALL);
+            cpu->callALU(SUM, callALU_flags(C | Z | N | R));
             cpu->setDOR(cpu->ADD);
 
             cpu->BI = cpu->ADD;
@@ -1363,7 +1391,7 @@ namespace CPU::Opcode {
     void RLA_DX(CPU *cpu) {
         if (addr_zero_index_rmw(cpu, X)) {
             cpu->AI = cpu->BI = cpu->getDL();
-            cpu->callALU(SUM, S_ALL);
+            cpu->callALU(SUM, callALU_flags(C | Z | N | R));
             cpu->setDOR(cpu->ADD);
 
             cpu->BI = cpu->ADD;
@@ -1375,7 +1403,7 @@ namespace CPU::Opcode {
     void RLA_A(CPU *cpu) {
         if (addr_absolute_rmw(cpu)) {
             cpu->AI = cpu->BI = cpu->getDL();
-            cpu->callALU(SUM, S_ALL);
+            cpu->callALU(SUM, callALU_flags(C | Z | N | R));
             cpu->setDOR(cpu->ADD);
 
             cpu->BI = cpu->ADD;
@@ -1387,7 +1415,7 @@ namespace CPU::Opcode {
     void RLA_AX(CPU *cpu) {
         if (addr_absolute_index_rmw(cpu, X)) {
             cpu->AI = cpu->BI = cpu->getDL();
-            cpu->callALU(SUM, S_ALL);
+            cpu->callALU(SUM, callALU_flags(C | Z | N | R));
             cpu->setDOR(cpu->ADD);
 
             cpu->BI = cpu->ADD;
@@ -1399,7 +1427,7 @@ namespace CPU::Opcode {
     void RLA_AY(CPU *cpu) {
         if (addr_absolute_index_rmw(cpu, Y)) {
             cpu->AI = cpu->BI = cpu->getDL();
-            cpu->callALU(SUM, S_ALL);
+            cpu->callALU(SUM, callALU_flags(C | Z | N | R));
             cpu->setDOR(cpu->ADD);
 
             cpu->BI = cpu->ADD;
@@ -1409,9 +1437,9 @@ namespace CPU::Opcode {
         }
     }
     void RLA_NX(CPU *cpu) {
-        if (addr_indexed_indirect_read(cpu)) {
+        if (addr_indexed_indirect_rmw(cpu)) {
             cpu->AI = cpu->BI = cpu->getDL();
-            cpu->callALU(SUM, S_ALL);
+            cpu->callALU(SUM, callALU_flags(C | Z | N | R));
             cpu->setDOR(cpu->ADD);
 
             cpu->BI = cpu->ADD;
@@ -1421,9 +1449,9 @@ namespace CPU::Opcode {
         }
     }
     void RLA_NY(CPU *cpu) {
-        if (addr_indirect_indexed_read(cpu)) {
+        if (addr_indirect_indexed_rmw(cpu)) {
             cpu->AI = cpu->BI = cpu->getDL();
-            cpu->callALU(SUM, S_ALL);
+            cpu->callALU(SUM, callALU_flags(C | Z | N | R));
             cpu->setDOR(cpu->ADD);
 
             cpu->BI = cpu->ADD;
@@ -1435,7 +1463,7 @@ namespace CPU::Opcode {
 
     void RRA_D(CPU *cpu) {
         if (addr_zero_rmw(cpu)) {
-            cpu->AI = cpu->A;
+            cpu->AI = cpu->getDL();
             cpu->BI = 0;
             cpu->callALU(SR, S_ALL);
             cpu->setDOR(cpu->ADD);
@@ -1448,7 +1476,7 @@ namespace CPU::Opcode {
     }
     void RRA_DX(CPU *cpu) {
         if (addr_zero_index_rmw(cpu, X)) {
-            cpu->AI = cpu->A;
+            cpu->AI = cpu->getDL();
             cpu->BI = 0;
             cpu->callALU(SR, S_ALL);
             cpu->setDOR(cpu->ADD);
@@ -1461,7 +1489,7 @@ namespace CPU::Opcode {
     }
     void RRA_A(CPU *cpu) {
         if (addr_absolute_rmw(cpu)) {
-            cpu->AI = cpu->A;
+            cpu->AI = cpu->getDL();
             cpu->BI = 0;
             cpu->callALU(SR, S_ALL);
             cpu->setDOR(cpu->ADD);
@@ -1474,7 +1502,7 @@ namespace CPU::Opcode {
     }
     void RRA_AX(CPU *cpu) {
         if (addr_absolute_index_rmw(cpu, X)) {
-            cpu->AI = cpu->A;
+            cpu->AI = cpu->getDL();
             cpu->BI = 0;
             cpu->callALU(SR, S_ALL);
             cpu->setDOR(cpu->ADD);
@@ -1487,7 +1515,7 @@ namespace CPU::Opcode {
     }
     void RRA_AY(CPU *cpu) {
         if (addr_absolute_index_rmw(cpu, Y)) {
-            cpu->AI = cpu->A;
+            cpu->AI = cpu->getDL();
             cpu->BI = 0;
             cpu->callALU(SR, S_ALL);
             cpu->setDOR(cpu->ADD);
@@ -1500,7 +1528,7 @@ namespace CPU::Opcode {
     }
     void RRA_NX(CPU *cpu) {
         if (addr_indexed_indirect_rmw(cpu)) {
-            cpu->AI = cpu->A;
+            cpu->AI = cpu->getDL();
             cpu->BI = 0;
             cpu->callALU(SR, S_ALL);
             cpu->setDOR(cpu->ADD);
@@ -1513,7 +1541,7 @@ namespace CPU::Opcode {
     }
     void RRA_NY(CPU *cpu) {
         if (addr_indirect_indexed_rmw(cpu)) {
-            cpu->AI = cpu->A;
+            cpu->AI = cpu->getDL();
             cpu->BI = 0;
             cpu->callALU(SR, S_ALL);
             cpu->setDOR(cpu->ADD);
@@ -1608,7 +1636,7 @@ namespace CPU::Opcode {
         if (addr_absolute_write(cpu)) { cpu->setDOR(cpu->A & cpu->X); }
     }
     void SAX_NX(CPU *cpu) {
-        if (addr_absolute_write(cpu)) { cpu->setDOR(cpu->A & cpu->X); }
+        if (addr_indexed_indirect_write(cpu)) { cpu->setDOR(cpu->A & cpu->X); }
     }
 
     void SEC(CPU *cpu) {
@@ -1699,7 +1727,7 @@ namespace CPU::Opcode {
 
     void SLO_D(CPU *cpu) {
         if (addr_zero_rmw(cpu)) {
-            cpu->AI = cpu->BI = cpu->A;
+            cpu->AI = cpu->BI = cpu->getDL();
             cpu->callALU(SUM, callALU_flags(C | Z | N));
             cpu->setDOR(cpu->ADD);
 
@@ -1711,7 +1739,7 @@ namespace CPU::Opcode {
     }
     void SLO_DX(CPU *cpu) {
         if (addr_zero_index_rmw(cpu, X)) {
-            cpu->AI = cpu->BI = cpu->A;
+            cpu->AI = cpu->BI = cpu->getDL();
             cpu->callALU(SUM, callALU_flags(C | Z | N));
             cpu->setDOR(cpu->ADD);
 
@@ -1723,7 +1751,7 @@ namespace CPU::Opcode {
     }
     void SLO_A(CPU *cpu) {
         if (addr_absolute_rmw(cpu)) {
-            cpu->AI = cpu->BI = cpu->A;
+            cpu->AI = cpu->BI = cpu->getDL();
             cpu->callALU(SUM, callALU_flags(C | Z | N));
             cpu->setDOR(cpu->ADD);
 
@@ -1735,7 +1763,7 @@ namespace CPU::Opcode {
     }
     void SLO_AX(CPU *cpu) {
         if (addr_absolute_index_rmw(cpu, X)) {
-            cpu->AI = cpu->BI = cpu->A;
+            cpu->AI = cpu->BI = cpu->getDL();
             cpu->callALU(SUM, callALU_flags(C | Z | N));
             cpu->setDOR(cpu->ADD);
 
@@ -1747,7 +1775,7 @@ namespace CPU::Opcode {
     }
     void SLO_AY(CPU *cpu) {
         if (addr_absolute_index_rmw(cpu, Y)) {
-            cpu->AI = cpu->BI = cpu->A;
+            cpu->AI = cpu->BI = cpu->getDL();
             cpu->callALU(SUM, callALU_flags(C | Z | N));
             cpu->setDOR(cpu->ADD);
 
@@ -1759,7 +1787,7 @@ namespace CPU::Opcode {
     }
     void SLO_NX(CPU *cpu) {
         if (addr_indexed_indirect_rmw(cpu)) {
-            cpu->AI = cpu->BI = cpu->A;
+            cpu->AI = cpu->BI = cpu->getDL();
             cpu->callALU(SUM, callALU_flags(C | Z | N));
             cpu->setDOR(cpu->ADD);
 
@@ -1771,7 +1799,7 @@ namespace CPU::Opcode {
     }
     void SLO_NY(CPU *cpu) {
         if (addr_indirect_indexed_rmw(cpu)) {
-            cpu->AI = cpu->BI = cpu->A;
+            cpu->AI = cpu->BI = cpu->getDL();
             cpu->callALU(SUM, callALU_flags(C | Z | N));
             cpu->setDOR(cpu->ADD);
 
