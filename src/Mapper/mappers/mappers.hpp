@@ -12,6 +12,8 @@ namespace Mapper {
         public:
             virtual uint8_t read(uint16_t addr, bool &bus) = 0;
             virtual void write(uint16_t, uint8_t value) = 0;
+            virtual uint8_t readPPU(uint16_t addr, uint16_t &return_addr) = 0;
+            virtual void writePPU(uint16_t addr, uint8_t value, uint16_t &return_addr) = 0;
     };
 
     class NROM : public Mapper {
@@ -24,12 +26,15 @@ namespace Mapper {
             };
 
             Type type;
+            bool mirroring;
         
         public:
             NROM(std::ifstream& rom);
             
             uint8_t read(uint16_t addr, bool &bus) override;
             void write(uint16_t addr, uint8_t value) override;
+            uint8_t readPPU(uint16_t addr, uint16_t &return_addr) override;
+            void writePPU(uint16_t addr, uint8_t value, uint16_t &return_addr) override;
     };
 
 #define MAPPERS new NROM(), 0

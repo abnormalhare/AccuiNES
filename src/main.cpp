@@ -1,9 +1,8 @@
 #include "CPU/cpu.hpp"
+#include "PPU/ppu.hpp"
 #include "header.hpp"
 #include "Mapper/mapper.hpp"
 
-#include <SDL_error.h>
-#include <SDL_keycode.h>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -18,6 +17,11 @@ TTF_Font *font = nullptr;
 
 char *filename;
 
+Header header;
+
+const int DISP_WIDTH = 512;
+const int DISP_HEIGHT = 512;
+
 bool initialize_sdl() {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
         std::cout << "ERROR: SDL did not initialize: " << SDL_GetError() << std::endl;
@@ -29,7 +33,7 @@ bool initialize_sdl() {
         return true;
     }
 
-    window = SDL_CreateWindow("AccuiNES", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("AccuiNES", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DISP_WIDTH, DISP_HEIGHT, SDL_WINDOW_SHOWN);
     if (!window) {
         std::cout << "ERROR: SDL Window did not initialize: " << SDL_GetError() << std::endl;
         return true;
@@ -137,11 +141,18 @@ bool initialize_rom() {
     return false;
 }
 
+std::unique_ptr<CPU::CPU> cpu;
+std::unique_ptr<PPU::PPU> ppu;
+
 void run() {
-    std::unique_ptr<CPU::CPU> cpu = std::make_unique<CPU::CPU>();
+    cpu = std::make_unique<CPU::CPU>();
+    ppu = std::make_unique<PPU::PPU>();
 
     while (cpu->running && process_sdl(cpu)) {
-        cpu->tick();
+        cpu->tick(); // simulates a PPU cycle as well
+        ppu->tick();
+        ppu->tick();
+        
         SDL_RenderPresent(renderer);
     }
 }
@@ -152,12 +163,12 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     filename = argv[1];
-
-    std::cout << "GLFW initialized" << std::endl;
     
     if (initialize_sdl()) {
         return 1;
     }
+
+    std::cout << "SDL initialized" << std::endl;
 
     if (initialize_rom()) {
         return 2;

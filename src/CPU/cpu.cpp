@@ -1,11 +1,10 @@
 #include "./cpu.hpp"
+#include "PPU/ppu.hpp"
 
 #include "./opcode.hpp"
 #include "Mapper/mapper.hpp"
-#include "header.hpp"
 
 #include "main.hpp"
-#include <SDL_pixels.h>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
@@ -13,8 +12,9 @@
 #include <iomanip>
 #include <ios>
 #include <iostream>
+#include <memory>
 
-Header header;
+extern std::unique_ptr<PPU::PPU> ppu;
 
 namespace CPU {
 
@@ -115,7 +115,7 @@ inline uint8_t CPU::read(uint16_t index) {
             return this->RAM[this->AB % 0x800];
             break;
         case 0x2000 ... 0x3FFF: // TODO
-            return this->DL;
+            return ppu->read(index % 8);
         case 0x4000 ... 0x401F: // TODO
             return this->DL;
         case 0x4020 ... 0xFFFF:
@@ -123,6 +123,9 @@ inline uint8_t CPU::read(uint16_t index) {
             uint8_t val = Mapper::read(index, bus);
             if (!bus) return val;
             else return this->DL;
+    }
+    if (index < 0x2000 || index > 0x3FFF) {
+        ppu->tick();
     }
 
     return this->DL;
@@ -137,17 +140,21 @@ void CPU::read() {
 }
 
 void CPU::write() {
-    switch (this->AB.get()) {
+    uint16_t index = this->AB.get();
+    switch (index) {
         case 0x0000 ... 0x1FFF:
             this->RAM[this->AB % 0x800] = this->DOR;
             break;
         case 0x2000 ... 0x3FFF: // TODO
-            break;
+            ppu->write(index % 8, this->DOR);
         case 0x4000 ... 0x401F: // TODO
             break;
         case 0x4020 ... 0xFFFF:
-            Mapper::write(this->AB.get(), this->DOR);
+            Mapper::write(index, this->DOR);
             break;
+    }
+    if (index < 0x2000 || index > 0x3FFF) {
+        ppu->tick();
     }
 }
 

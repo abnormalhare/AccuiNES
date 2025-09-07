@@ -42,7 +42,7 @@ namespace Mapper {
                 case 0: break;
                 case 5:
                     this->type = FB_2K;
-                    this->PRG_RAM = new uint8_t[0x500];
+                    this->PRG_RAM = new uint8_t[0x800];
                     break;
                 case 6:
                     this->type = FB_4K;
@@ -52,6 +52,8 @@ namespace Mapper {
                     std::cout << "ERROR: Mapper of type NROM has illegal PRG RAM size: " << header.nes1.prg_ram << std::endl;
             }
         }
+
+        this->mirroring = (header.nametbl_mirror & 0b01) == 1;
 
         switch (this->type) {
             case NROM128: std::cout << "NROM128" << std::endl; break;
@@ -69,8 +71,18 @@ namespace Mapper {
             case 0x4020 ... 0x5FFF:
                 return 0; // should happen
             case 0x6000 ... 0x7FFF:
-                std::cout << "ERROR: Unimplemented Mapper type: Family Basic NROM" << std::endl;
-                return 0;
+                switch (this->type) {
+                    case NROM::NROM128:
+                    case NROM::NROM256:
+                    default:
+                        return 0;
+                    case NROM::FB_2K:
+                        bus = false;
+                        return this->PRG_RAM[addr % 0x800];
+                    case NROM::FB_4K:
+                        bus = false;
+                        return this->PRG_RAM[addr % 0x1000];
+                }
             case 0x8000 ... 0xFFFF:
                 bus = false;
                 switch (this->type) {
@@ -103,6 +115,34 @@ namespace Mapper {
                         this->PRG_RAM[addr % 0x1000] = value;
                         break;
                     default: break;
+                }
+        }
+    }
+
+    uint8_t NROM::readPPU(uint16_t addr, uint16_t &return_addr) {
+        switch (addr) {
+            case 0x0000 ... 0x1FFF:
+                return this->CHR_ROM[addr];
+            case 0x2000 ... 0x2FFF:
+                if (this->mirroring == 0) {
+                    return_addr = addr % 0x800;
+                } else {
+                    return_addr = (addr % 0x400) + ((addr < 0x2800) ? 0 : 0x400);
+                }
+        }
+
+        return 0;
+    }
+
+    void NROM::writePPU(uint16_t addr, uint8_t value, uint16_t &return_addr) {
+        switch (addr) {
+            case 0x0000 ... 0x1FFF:
+                break;
+            case 0x2000 ... 0x2FFF:
+                if (this->mirroring == 0) {
+                    return_addr = addr % 0x800;
+                } else {
+                    return_addr = (addr % 0x400) + ((addr < 0x2800) ? 0 : 0x400);
                 }
         }
     }

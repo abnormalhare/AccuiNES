@@ -15,6 +15,14 @@ namespace Mapper {
         currentMapper->write(addr, value);
     }
 
+    uint8_t readPPU(uint16_t addr, uint16_t &return_addr) {
+        return currentMapper->readPPU(addr, return_addr);
+    }
+
+    void writePPU(uint16_t addr, uint8_t value, uint16_t &return_addr) {
+        currentMapper->writePPU(addr, value, return_addr);
+    }
+
     void determineMapper(std::ifstream& rom) {
         switch (header.mapper_num) {
             default:
