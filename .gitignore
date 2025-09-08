@@ -6,3 +6,4 @@ include/*
 !include/.gitkeep
 AccuiNES.exe
 debug
+/CMakeLists.txt
