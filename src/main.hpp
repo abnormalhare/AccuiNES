@@ -10,7 +10,10 @@
 #include <SDL_surface.h>
 #include <SDL_ttf.h>
 #include <SDL_video.h>
+
+#ifdef WINDOWS
 #include <SDL_main.h>
+#endif
 #include <SDL.h>
 
 extern SDL_Window *window;

@@ -8,7 +8,6 @@ project(AccuiNES LANGUAGES CXX)
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_PREFIX_PATH "C:/msys64/mingw32")
 
 # Gather all .cpp files recursively under src/
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
@@ -25,13 +24,13 @@ find_package(SDL2_ttf REQUIRED)
 # Create the executable in the project root (./)
 add_executable(AccuiNES ${SOURCES})
 
-# Link GLFW
+target_include_directories(AccuiNES PRIVATE src include /usr/include/SDL2)
+
+# Link SDL2
 target_link_libraries(AccuiNES PRIVATE
     ${SDL2_LIBRARIES}
     ${SDL2TTF_LIBRARIES}
 )
-
-target_include_directories(AccuiNES PRIVATE src include)
 
 set_target_properties(AccuiNES PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}

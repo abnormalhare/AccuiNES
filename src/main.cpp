@@ -23,6 +23,11 @@ const int DISP_WIDTH = 512;
 const int DISP_HEIGHT = 512;
 
 bool initialize_sdl() {
+    if (SDL_Init(SDL_INIT_AUDIO) != 0) {
+        printf("SDL_Init failed: %s\n", SDL_GetError());
+        return 1;
+    }
+    
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
         std::cout << "ERROR: SDL did not initialize: " << SDL_GetError() << std::endl;
         return true;

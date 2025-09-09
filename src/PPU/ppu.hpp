@@ -26,7 +26,7 @@ namespace PPU {
         uint16_t all;
     };
 
-    union vram_addr { // yyy NN YYYYY XXXXX
+    union vram_addr_t { // yyy NN YYYYY XXXXX
         struct {
             uint8_t coarse_x : 5;
             uint8_t coarse_y : 5;
@@ -38,8 +38,8 @@ namespace PPU {
 
     class PPU {
     private:
-        vram_addr v;
-        vram_addr t;
+        vram_addr_t v;
+        vram_addr_t t;
 
         uint8_t x : 3;
         uint8_t w : 1;

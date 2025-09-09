@@ -27,10 +27,12 @@ namespace PPU {
 
     uint8_t PPU::_get(uint16_t addr) {
         uint16_t return_addr;
-        Mapper::readPPU(addr, return_addr);
+        uint8_t ret = Mapper::readPPU(addr, return_addr);
         if (return_addr != 0) {
             return this->vram[return_addr];
         }
+
+        return ret;
     }
 
     void PPU::_set(uint16_t addr, uint8_t val) {
